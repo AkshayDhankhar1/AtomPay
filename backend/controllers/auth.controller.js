@@ -1,8 +1,10 @@
-const { default: mongoose } = require("mongoose");
+
+const mongoose = require("mongoose");
 const User=require("../db/users");
 const Wallet=require("../db/wallet");
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken")
+const generateToken = require("../utils/jwt");
 exports.signup=  async(req,res)=>{
     try{
         //1. take data from body
@@ -52,15 +54,17 @@ exports.signup=  async(req,res)=>{
         }catch(err){
             console.log(err);
             await session.abortTransaction();
-            return res.status(400).json({
-                msg: "problem making a user"
-            })
+            if (err.code === 11000) {
+            return res.status(400).json({ msg: "Email or username already exists" });
+            }
+            return res.status(400).json({ msg: "Problem making a user" });
         }
-        await session.endSession();
-
+        finally{await session.endSession();}
+        const token=generateToken(newUser._id);
         res.json({
-            msg :"Signup Successful with signup bonous of ₹5000",
-            username : username
+            msg :"Signup Successful with signup bonus of ₹5000",
+            token: token,
+            user: {id: newUser._id,username : username}
         });
 
     }catch(err){
@@ -85,12 +89,83 @@ exports.login=async(req,res)=>{
     if(!isMatch){
         return res.status(401).json({msg :"Wrong password"})
     }
-    const token=await jwt.sign({userId : user._id},process.env.JWT_SECRET,{expiresIn : "4d"});
+    const token=generateToken(user._id);
     res.json({msg: "login successfull",token :token,user:{id :user._id,username :user.username,role :user.role}});
 }catch(err){
     console.log(err);
-    return res.status(400).json({
-        msg:err
+    return res.status(500).json({
+        msg:err.message
     })
 }
+}
+exports.changePassword=async(req,res)=>{
+    try{
+        const userid=req.user.id;
+        const oldPass=req.body.oldPassword;
+        const user=await User.findOne({_id : userid}).select("+password");
+        if(!user){
+            return res.status(404).json({
+                msg : "User not found"
+            })
+        }
+        const isMatch=await bcrypt.compare(oldPass,user.password);
+        if(!isMatch){
+            return res.status(401).json({
+                msg : "Wrong Password Entered"
+            })
+        }
+        const newPass=req.body.newPassword;
+        if(!newPass || newPass.length<8){
+            return res.status(400).json({
+                msg: "Password must be atlest 8 characters"
+            })
+        }
+        const hashPass=await bcrypt.hash(newPass,10);
+        user.password=hashPass;
+        await user.save();
+        return res.status(200).json({
+            msg : "Password changed successfully"
+        })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            msg : err.message
+        })
+    }
+}
+exports.changePin=async(req,res)=>{
+    try{
+        const userid=req.user.id;
+        const user=await User.findOne({_id:userid}).select("+hashedPin");
+        if(!user){
+            return res.status(404).json({
+                msg : "User Not Found"
+            })
+        }
+        const oldPin=req.body.oldPin;
+        const isMatch=await bcrypt.compare(oldPin,user.pin);
+        if(!isMatch){
+            return res.status(401).json({
+                msg : "You entered Wrong Pin"
+            })
+        }
+        const newPin=req.body.newPin;
+        if(!newPin || newPin.length != 6 ){
+            return res.status(400).json({
+                msg:"Enter new pin of length 6"
+            })
+        }
+        const hashPin=await bcrypt.hash(newPin,10);
+        user.hashedPin=hashPin;
+        await user.save();
+        return res.status(200).json({
+            msg : "Pin changed successfully"
+        })
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({
+            msg : err.message
+        })
+    }
 }

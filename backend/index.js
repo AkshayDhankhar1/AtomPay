@@ -1,9 +1,18 @@
 require('dotenv').config();
 const express=require("express");
+const connectDB = require("./db/db");
+const authRouter=require("./routes/auth.routes");
+const transactionRouter=require("./routes/transection.routes");
+const walletRouter=require("./routes/wallet.routes");
 const app=express();
-const mongoose=require("mongoose");
-// mongoose.connect("");
-const bcrypt=require("bcrypt");
-const crypto=require("crypto");
-const secrate=crypto.randomBytes(64).toString('hex');
-console.log(secrate);
+app.use(express.json());
+const startServer=async()=>{
+    await connectDB();
+    app.use("/api/auth",authRouter);
+    app.use("/api/wallet",walletRouter);
+    app.use("/api/transaction",transactionRouter);
+    app.listen(3000,()=>{
+        console.log("server running on port 3000 ✅");
+    });
+}
+startServer();

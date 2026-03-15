@@ -10,19 +10,18 @@ const walletSchema=new mongoose.Schema({
     balance:{
         type:Number,
         min:0,
-        required:false,
-        default:5000
+        default:500000
     },
-    curr:{
+    currency:{
         type:String,
         enum:["INR"],
         default:"INR"
     },
     status:{
         type:String,
-        enum:["Active","Freezed","Closed"],
+        enum:["Active","Frozen","Closed"],
         default:"Active"
     }
 },{timestamps:true});
-
-export const wallet=mongoose.model("Wallet",walletSchema);
+const wallet=mongoose.model("Wallet",walletSchema);
+module.exports =wallet;

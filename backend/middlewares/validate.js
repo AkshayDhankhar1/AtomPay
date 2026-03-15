@@ -1,4 +1,3 @@
-const zod=require("zod");
 exports.validate=(schema)=>(req,res,next)=>{
     try{
         schema.parse(req.body);

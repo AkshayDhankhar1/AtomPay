@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-
-exports.authMiddleware=(req, res, next) =>{
+const authMiddleware=(req, res, next) =>{
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
@@ -15,6 +14,11 @@ exports.authMiddleware=(req, res, next) =>{
     };
     next();
   } catch (err) {
+    if(err.name === "TokenExpiredError"){
+      return res.status(401).json({
+        msg : "Token Expired Login Again"
+      });
+    }
     return res.status(403).json({ message: "Invalid token" });
   }
 }

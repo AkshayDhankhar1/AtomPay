@@ -18,7 +18,6 @@ exports.transferMoney = async (req, res) => {
             msg: "please send a valid amount"
         });
     }
-    console.log("Valid Amount ✅")
     //////////////////----------try 1----------------/////////////////////////
     let session;
     let tx;
@@ -33,7 +32,6 @@ exports.transferMoney = async (req, res) => {
             });
         }
 
-        console.log("Sender Found ✅")
 
         if (sender.active !== true) {
             return res.status(400).json({
@@ -41,7 +39,6 @@ exports.transferMoney = async (req, res) => {
             });
         }
 
-        console.log("sender is active ✅")
 
         const senderWallet = await Wallet.findOne({ user: senderId });
 
@@ -57,7 +54,6 @@ exports.transferMoney = async (req, res) => {
             });
         }
 
-        console.log("sender wallet is active ✅")
 
         const receiver = await User.findOne({ username: receiverUsername })
             .select("active");
@@ -67,13 +63,12 @@ exports.transferMoney = async (req, res) => {
                 msg: "Invalid receiver"
                });
         }
-        if(senderId==receiver._id.toString()){
+        if(senderId===receiver._id.toString()){
             return res.status(400).json({
                 msg:"You are sending money to yourself"
             })
         }
 
-        console.log("receiver found ✅")
 
         if (receiver.active !== true) {
             return res.status(400).json({
@@ -95,7 +90,6 @@ exports.transferMoney = async (req, res) => {
             });
         }
 
-        console.log("Receiver Wallet is Active ✅")
 
         const isMatch=await bcrypt.compare(pin,sender.hashedPin);
         if(!isMatch){
@@ -103,20 +97,34 @@ exports.transferMoney = async (req, res) => {
                 msg :"You entered wrong pin ❌"
             })
         }
-
-        console.log("Valid Pin ✅")
-
         if(senderWallet.balance<amount){
             return res.status(400).json({
                 msg:"You don't have sufficient money ❌"
             })
         }
-
-        console.log("valid Balance ✅")
+        const since=new Date(Date.now()-24*60*60*1000);
+        const result=await Transaction.aggregate([{
+            $match :{
+                fromWallet : senderWallet._id,
+                status:"success",
+                createdAt : {$gte :since}
+            }
+        },{
+            $group :{
+                _id: null,
+                totalSent :{$sum :"$amount"}
+            }
+        }
+    ])
+    const totalSent=result[0]?.totalSent||0;
+    if(totalSent + amount > 100000){
+        return res.status(400).json({
+            msg :"You Cann't send money more than 1lakh in 24 hours"
+        })
+    }
         // try{
         session = await mongoose.startSession(); 
-        session.startTransaction();
-        console.log("Session Started ✅")
+        await session.startTransaction();
         const senderWalletTx=await Wallet.findOne({user : senderId}).session(session);
         if(!senderWalletTx){
             throw new Error("sender wallet does not exists")
@@ -135,7 +143,6 @@ exports.transferMoney = async (req, res) => {
             amount:amount,
             status:"pending"
         })
-        console.log("Transaction formed ✅")
         await tx.save({session});
         senderWalletTx.balance-=amount;
         receiverWalletTx.balance+=amount;
@@ -144,36 +151,27 @@ exports.transferMoney = async (req, res) => {
         tx.status="success";
         await tx.save({session});
         await session.commitTransaction();
-        session.endSession();
 
         return res.status(200).json({
             msg :"Money sent successfully ✅"
         })
     }
-        //     catch(err){                               // catch 2
-        //            if(session) {console.log(err);
-        //         await session.aortTransaction();
-        //         session.endSession();
-        //         return res.status(400).json({
-        //             err : err.message}
-        //         );}
-        //    }
-
-
-    // } ////////////////----------------catch 2-------------------//////////////// 
     catch (err) {
         console.log(err);
         if(session){
             await session.abortTransaction();
-            session.endSession();
         }
         if(tx){
             tx.status="failed";
             tx.failureReason=err.message ||"UNknown error";
             await tx.save();
         }
-        return res.status(400).json({
+        return res.status(500).json({
             msg: "something went wrong ❌"
         });
+    }finally{
+        if(session){
+            await session.endSession();
+        }
     }
 };

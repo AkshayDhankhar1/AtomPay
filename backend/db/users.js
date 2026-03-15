@@ -1,15 +1,17 @@
-import { minLength } from "zod";
-
 const mongoose=require("mongoose");
 const userSchema=new mongoose.Schema({
     name :{
         type: String,
-        required :true
+        required :true,
+        trim : true,
+        minlength: 2
     },
     email : {
         type:String,
         required:true,
-        unique : true
+        unique : true,
+        trim: true,
+        lowercase: true
     },
     password : {
         type: String,
@@ -20,7 +22,9 @@ const userSchema=new mongoose.Schema({
         type : String,
         required :true,
         unique : true,
-        lowercase:true
+        lowercase:true,
+        trim : true,
+        minlength :true
     },hashedPin:{
         type: String,
         required :true,
@@ -37,4 +41,5 @@ const userSchema=new mongoose.Schema({
     }
 },{timestamps : true});
 
-export const User=mongoose.model('users',userSchema);
+const User=mongoose.model('User',userSchema);
+module.exports =User
