@@ -6,7 +6,7 @@ const authRouter=require("./routes/auth.routes");
 const transactionRouter=require("./routes/transection.routes");
 const walletRouter=require("./routes/wallet.routes");
 const app=express();
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 const startServer=async()=>{
     await connectDB();
