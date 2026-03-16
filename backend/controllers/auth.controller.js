@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const User=require("../db/users");
 const Wallet=require("../db/wallet");
 const bcrypt=require("bcrypt");
-const jwt=require("jsonwebtoken")
 const generateToken = require("../utils/jwt");
 exports.signup=  async(req,res)=>{
     try{

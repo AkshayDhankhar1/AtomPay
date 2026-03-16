@@ -22,7 +22,7 @@ exports.getMyTransactions=async (req,res)=>{
     try{const userId=req.user.id;
     const wallet =await Wallet.findOne({user : userId});
     if(!wallet){
-        throw new Error("Wallet not found");
+        return res.status(404).json({msg:"Wallet not found"});
     }
     const txs=await Transaction.find({
         $or :[

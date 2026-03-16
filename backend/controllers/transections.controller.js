@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("../db/users");
 const Wallet = require("../db/wallet");
-const Transaction = require("../db/transaction");
+const Transaction = require("../db/transections");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
@@ -127,14 +127,14 @@ exports.transferMoney = async (req, res) => {
         await session.startTransaction();
         const senderWalletTx=await Wallet.findOne({user : senderId}).session(session);
         if(!senderWalletTx){
-            throw new Error("sender wallet does not exists")
+            return res.status(404).json({msg:"sender wallet does not exists"})
         }
         const receiverWalletTx=await Wallet.findOne({user :receiver._id}).session(session);
         if(!receiverWalletTx){
-            throw new Error("Receiver wallet not found during transaction")
+            return res.status(404).json({msg: "Receiver wallet not found during transaction"})
         }
         if(senderWalletTx.balance<amount){
-            throw new Error("Insufficient balance");
+            return res.status(404).json({msg :"Insufficient balance"});
         }
         tx=new Transaction({
             transactionId:crypto.randomUUID(),
@@ -163,7 +163,7 @@ exports.transferMoney = async (req, res) => {
         }
         if(tx){
             tx.status="failed";
-            tx.failureReason=err.message ||"UNknown error";
+            tx.failureReason=err.message ||"Unknown error";
             await tx.save();
         }
         return res.status(500).json({
