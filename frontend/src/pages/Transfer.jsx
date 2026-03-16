@@ -1,0 +1,175 @@
+import { useState } from "react";
+import { api } from "../api";
+import BottomNav from "../components/BottomNav";
+import "../styles/transfer.css";
+
+const QUICK_AMOUNTS = [100, 500, 1000, 2000, 5000];
+
+export default function Transfer({ token, navigate }) {
+  const [step, setStep] = useState(1); // 1=details, 2=pin, 3=success
+  const [form, setForm] = useState({ receiverUsername: "", amount: "", note: "", pin: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleNext = () => {
+    setError("");
+    if (!form.receiverUsername) return setError("Username daalo");
+    if (!form.amount || Number(form.amount) < 1) return setError("Valid amount daalo");
+    if (Number(form.amount) > 100000) return setError("Max ₹1,00,000 ek baar mein");
+    setStep(2);
+  };
+
+  const handleTransfer = async () => {
+    setError("");
+    if (!form.pin || form.pin.length !== 6) return setError("6-digit PIN daalo");
+    setLoading(true);
+    try {
+      await api("/transaction/transfer", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverUsername: form.receiverUsername,
+          amount: Number(form.amount),
+          pin: form.pin,
+          note: form.note || undefined,
+        }),
+      }, token);
+      setStep(3);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatAmount = (n) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+
+  return (
+    <div className="transfer-page">
+      <div className="transfer-header">
+        <button className="back-btn" onClick={() => step === 2 ? setStep(1) : navigate("dashboard")}>←</button>
+        <h2>{step === 1 ? "Send Money" : step === 2 ? "Enter PIN" : "Done!"}</h2>
+        <div />
+      </div>
+
+      {/* Step Indicator */}
+      <div className="step-indicator">
+        {[1, 2, 3].map(s => (
+          <div key={s} className={`step-dot ${step >= s ? "active" : ""}`} />
+        ))}
+      </div>
+
+      {step === 1 && (
+        <div className="transfer-form">
+          <div className="input-group">
+            <label>Kisko bhejne hai?</label>
+            <input
+              placeholder="@username"
+              value={form.receiverUsername}
+              onChange={e => setForm({ ...form, receiverUsername: e.target.value })}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Amount (₹)</label>
+            <input
+              type="number"
+              placeholder="0"
+              value={form.amount}
+              onChange={e => setForm({ ...form, amount: e.target.value })}
+              className="amount-input"
+            />
+          </div>
+
+          {/* Quick amounts */}
+          <div className="quick-amounts">
+            {QUICK_AMOUNTS.map(a => (
+              <button
+                key={a}
+                className={`quick-amt-btn ${Number(form.amount) === a ? "selected" : ""}`}
+                onClick={() => setForm({ ...form, amount: String(a) })}
+              >
+                ₹{a.toLocaleString("en-IN")}
+              </button>
+            ))}
+          </div>
+
+          <div className="input-group">
+            <label>Note (optional)</label>
+            <input
+              placeholder="Rent, lunch, etc."
+              value={form.note}
+              onChange={e => setForm({ ...form, note: e.target.value })}
+            />
+          </div>
+
+          {error && <div className="transfer-error">{error}</div>}
+
+          <button className="transfer-btn" onClick={handleNext}>
+            Review Transfer →
+          </button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="transfer-form">
+          {/* Summary */}
+          <div className="transfer-summary">
+            <div className="summary-row">
+              <span>To</span>
+              <span>@{form.receiverUsername}</span>
+            </div>
+            <div className="summary-row highlight">
+              <span>Amount</span>
+              <span>{formatAmount(Number(form.amount))}</span>
+            </div>
+            {form.note && (
+              <div className="summary-row">
+                <span>Note</span>
+                <span>{form.note}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="input-group" style={{ marginTop: 24 }}>
+            <label>UPI PIN confirm karo</label>
+            <input
+              type="password"
+              placeholder="••••••"
+              maxLength={6}
+              value={form.pin}
+              onChange={e => setForm({ ...form, pin: e.target.value })}
+            />
+          </div>
+
+          {error && <div className="transfer-error">{error}</div>}
+
+          <button className="transfer-btn" onClick={handleTransfer} disabled={loading}>
+            {loading ? <span className="spinner" /> : `Confirm & Send ${formatAmount(Number(form.amount))}`}
+          </button>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="success-screen">
+          <div className="success-circle">
+            <span>✓</span>
+          </div>
+          <h2>Paisa Bhej Diya!</h2>
+          <p>{formatAmount(Number(form.amount))} successfully sent to @{form.receiverUsername}</p>
+          <button className="transfer-btn" onClick={() => {
+            setForm({ receiverUsername: "", amount: "", note: "", pin: "" });
+            setStep(1);
+          }}>
+            Ek aur bhejo
+          </button>
+          <button className="transfer-btn-outline" onClick={() => navigate("dashboard")}>
+            Dashboard pe jao
+          </button>
+        </div>
+      )}
+
+      <BottomNav active="transfer" navigate={navigate} />
+    </div>
+  );
+}

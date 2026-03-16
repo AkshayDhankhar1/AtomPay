@@ -1,0 +1,65 @@
+@import './global.css';
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: rgba(15, 15, 15, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--bg3);
+  display: flex;
+  padding: 8px 0 20px;
+  z-index: 50;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 8px 0;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+}
+
+.nav-item.active {
+  color: var(--orange);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--orange);
+  border-radius: 0 0 4px 4px;
+}
+
+.nav-icon {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.15);
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}

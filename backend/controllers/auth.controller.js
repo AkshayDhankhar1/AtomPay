@@ -144,7 +144,7 @@ exports.changePin=async(req,res)=>{
             })
         }
         const oldPin=req.body.oldPin;
-        const isMatch=await bcrypt.compare(oldPin,user.pin);
+        const isMatch=await bcrypt.compare(oldPin,user.hashedPin);
         if(!isMatch){
             return res.status(401).json({
                 msg : "You entered Wrong Pin"
