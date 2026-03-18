@@ -21,6 +21,10 @@ const walletSchema=new mongoose.Schema({
         type:String,
         enum:["Active","Frozen","Closed"],
         default:"Active"
+    },
+    qrCode:{
+        type:String,
+        default :""
     }
 },{timestamps:true});
 const wallet=mongoose.model("Wallet",walletSchema);

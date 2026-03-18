@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
 import "../styles/transfer.css";
@@ -6,10 +6,65 @@ import "../styles/transfer.css";
 const QUICK_AMOUNTS = [100, 500, 1000, 2000, 5000];
 
 export default function Transfer({ token, navigate }) {
-  const [step, setStep] = useState(1); // 1=details, 2=pin, 3=success
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({ receiverUsername: "", amount: "", note: "", pin: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const scannerRef = useRef(null);
+  const scannerInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (showScanner) {
+      startScanner();
+    } else {
+      stopScanner();
+    }
+    return () => stopScanner();
+  }, [showScanner]);
+
+  const startScanner = async () => {
+    const { Html5Qrcode } = await import("html5-qrcode");
+    
+    try {
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      scannerInstanceRef.current = html5QrCode;
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          // atompay://pay?to=username format parse karo
+          try {
+            const url = new URL(decodedText);
+            const username = url.searchParams.get("to");
+            if (username) {
+              setForm(f => ({ ...f, receiverUsername: username }));
+              setShowScanner(false);
+            }
+          } catch {
+            // Direct username bhi ho sakta hai
+            setForm(f => ({ ...f, receiverUsername: decodedText }));
+            setShowScanner(false);
+          }
+        },
+        () => {} // scan fail — ignore
+      );
+    } catch (err) {
+      setError("Camera access nahi mila — manually username daalo");
+      setShowScanner(false);
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerInstanceRef.current) {
+      try {
+        await scannerInstanceRef.current.stop();
+        scannerInstanceRef.current.clear();
+      } catch {}
+      scannerInstanceRef.current = null;
+    }
+  };
 
   const handleNext = () => {
     setError("");
@@ -59,15 +114,38 @@ export default function Transfer({ token, navigate }) {
         ))}
       </div>
 
+      {/* QR Scanner Modal */}
+      {showScanner && (
+        <div className="scanner-overlay">
+          <div className="scanner-modal">
+            <div className="scanner-header">
+              <h3>QR Scan Karo</h3>
+              <button className="scanner-close" onClick={() => setShowScanner(false)}>✕</button>
+            </div>
+            <p className="scanner-hint">Receiver ka QR code camera ke saamne rakho</p>
+            <div id="qr-reader" ref={scannerRef} className="qr-reader-box" />
+          </div>
+        </div>
+      )}
+
       {step === 1 && (
         <div className="transfer-form">
           <div className="input-group">
             <label>Kisko bhejne hai?</label>
-            <input
-              placeholder="@username"
-              value={form.receiverUsername}
-              onChange={e => setForm({ ...form, receiverUsername: e.target.value })}
-            />
+            <div className="username-input-row">
+              <input
+                placeholder="@username"
+                value={form.receiverUsername}
+                onChange={e => setForm({ ...form, receiverUsername: e.target.value })}
+              />
+              <button
+                className="scan-btn"
+                onClick={() => setShowScanner(true)}
+                title="QR Scan karo"
+              >
+                📷
+              </button>
+            </div>
           </div>
 
           <div className="input-group">
@@ -113,7 +191,6 @@ export default function Transfer({ token, navigate }) {
 
       {step === 2 && (
         <div className="transfer-form">
-          {/* Summary */}
           <div className="transfer-summary">
             <div className="summary-row">
               <span>To</span>

@@ -11,7 +11,8 @@ exports.getMyWallet=async(req,res)=>{
         res.json({
             balance : wallet.balance,
             currency: wallet.currency,
-            status : wallet.status
+            status : wallet.status,
+            qrCode : wallet.qrCode
         })
     }
     catch(err){

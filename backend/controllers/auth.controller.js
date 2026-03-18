@@ -4,6 +4,7 @@ const User=require("../db/users");
 const Wallet=require("../db/wallet");
 const bcrypt=require("bcrypt");
 const generateToken = require("../utils/jwt");
+const QRCode=require("qrcode");
 exports.signup=  async(req,res)=>{
     try{
         //1. take data from body
@@ -49,7 +50,10 @@ exports.signup=  async(req,res)=>{
         try{
         await newUser.save({session});
         await newWallet.save({session});
+        const qrData=`atompay://pay?to=${username}`;
+        const qrBase64=await QRCode.toDataURL(qrData);
         await session.commitTransaction();
+        await Wallet.findOneAndUpdate({user : newUser._id},{qrCode : qrBase64});
         }catch(err){
             console.log(err);
             await session.abortTransaction();

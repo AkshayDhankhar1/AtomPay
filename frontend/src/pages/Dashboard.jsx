@@ -8,6 +8,7 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
   const [txns, setTxns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [balanceVisible, setBalanceVisible] = useState(true);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +42,28 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
 
   return (
     <div className="dashboard">
+
+      {/* QR Modal */}
+      {showQR && (
+        <div className="qr-modal-overlay" onClick={() => setShowQR(false)}>
+          <div className="qr-modal" onClick={e => e.stopPropagation()}>
+            <div className="qr-modal-header">
+              <h3>Mera QR Code</h3>
+              <button className="qr-close-btn" onClick={() => setShowQR(false)}>✕</button>
+            </div>
+            <p className="qr-modal-hint">Yeh QR scan karke koi bhi tumhe paisa bhej sakta hai</p>
+            {wallet?.qrCode ? (
+              <div className="qr-image-wrap">
+                <img src={wallet.qrCode} alt="My QR Code" className="qr-image" />
+              </div>
+            ) : (
+              <div className="qr-empty">QR generate ho raha hai...</div>
+            )}
+            <p className="qr-username">@{user?.username}</p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="dash-header">
         <div>
@@ -79,6 +102,10 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
         <button className="action-btn" onClick={() => navigate("transactions")}>
           <span className="action-icon">☰</span>
           <span>History</span>
+        </button>
+        <button className="action-btn" onClick={() => setShowQR(true)}>
+          <span className="action-icon">⬛</span>
+          <span>My QR</span>
         </button>
         <button className="action-btn" onClick={() => navigate("settings")}>
           <span className="action-icon">⚙</span>

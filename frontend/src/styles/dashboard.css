@@ -270,3 +270,95 @@
 
 .txn-amount.debit { color: var(--red); }
 .txn-amount.credit { color: var(--green); }
+
+/* QR Modal — dashboard.css ke end mein add karo */
+
+.qr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.qr-modal {
+  background: var(--bg2);
+  border: 1px solid var(--bg4);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 48px;
+  width: 100%;
+  max-width: 430px;
+  text-align: center;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.qr-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.qr-modal-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.qr-close-btn {
+  background: var(--bg3);
+  border: none;
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-modal-hint {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.qr-image-wrap {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.qr-image {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.qr-username {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.qr-empty {
+  padding: 40px;
+  color: var(--text2);
+  font-size: 14px;
+}
