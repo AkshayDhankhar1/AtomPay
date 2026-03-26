@@ -19,3 +19,12 @@ exports.changePinSchema=zod.object({
     oldPin : zod.string().regex(/^\d{6}$/),
     newPin : zod.string().regex(/^\d{6}$/)
 })
+exports.sendOTPSchema = zod.object({
+    email: zod.string().email(),
+    password: zod.string().min(1)
+});
+
+exports.verifyOTPSchema = zod.object({
+    email: zod.string().email(),
+    otp: zod.string().length(6)
+});

@@ -5,6 +5,8 @@ const Wallet=require("../db/wallet");
 const bcrypt=require("bcrypt");
 const generateToken = require("../utils/jwt");
 const QRCode=require("qrcode");
+const { generateOTP, verifyOTP } = require("../utils/otp");
+const sendOTPEmail = require("../utils/mailer");
 exports.signup=  async(req,res)=>{
     try{
         //1. take data from body
@@ -172,3 +174,67 @@ exports.changePin=async(req,res)=>{
         })
     }
 }
+exports.sendOTP = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email })
+                               .select("+password");
+        if (!user) {
+            return res.status(404).json({
+                msg: "User not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+        if (!isMatch) {
+            return res.status(401).json({
+                msg: "Wrong password"
+            });
+        }
+
+        const otp = generateOTP(email);
+        await sendOTPEmail(email, otp);
+
+        return res.status(200).json({
+            msg: "OTP sent to your email"
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: err.message });
+    }
+};
+
+exports.verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        const isValid = verifyOTP(email, otp);
+        if (!isValid) {
+            return res.status(400).json({
+                msg: "Wrong or expired OTP"
+            });
+        }
+
+        const user = await User.findOne({ email });
+        const token = generateToken(user._id);
+
+        return res.status(200).json({
+            msg: "Login successful",
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                role: user.role
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: err.message });
+    }
+};

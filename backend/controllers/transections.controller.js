@@ -102,6 +102,7 @@ exports.transferMoney = async (req, res) => {
                 msg:"You don't have sufficient money ❌"
             })
         }
+        // aggregation pipeline
         const since=new Date(Date.now()-24*60*60*1000);
         const result=await Transaction.aggregate([{
             $match :{
