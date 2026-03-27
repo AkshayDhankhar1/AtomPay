@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
-    port: 587,        // add this
+    port: 587,
     secure: false,
     auth: {
         user: process.env.EMAIL,
@@ -17,9 +17,9 @@ const sendOTPEmail = async (email, otp) => {
         subject: "Your AtomPay Login OTP",
         html: `
             <div style="font-family:sans-serif;max-width:400px;margin:auto">
-                <h2 style="color:#125722">⚡ AtomPay</h2>
+                <h2 style="color:#FF5722">⚡ AtomPay</h2>
                 <p>Login OTP:</p>
-                <h1 style="color:#125722;letter-spacing:8px;font-size:36px">
+                <h1 style="color:#FF5722;letter-spacing:8px;font-size:36px">
                     ${otp}
                 </h1>
                 <p>10 minutes mein expire hoga.</p>
