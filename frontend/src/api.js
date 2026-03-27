@@ -1,4 +1,4 @@
-const BASE = "https://atompay-production-8b7c.up.railway.app/api";
+const BASE = "https://atompay.onrender.com";
 // const BASE = "http://localhost:3000/api";
 export const api = async (path, options = {}, token = null) => {
   const headers = { "Content-Type": "application/json" };

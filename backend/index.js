@@ -11,6 +11,11 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 const startServer=async()=>{
     await connectDB();
+    app.get("/api",async function(req,res){
+        res.status(200).json({
+            msg:"working properly"
+        })
+    })
     app.use("/api/auth",authRouter);
     app.use("/api/wallet",walletRouter);
     app.use("/api/transaction",transactionRouter);
