@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --orange: #FF5722;
+  --orange-light: #FF7043;
+  --orange-dim: rgba(255, 87, 34, 0.15);
+  --orange-glow: rgba(255, 87, 34, 0.35);
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --bg3: #1a1a1a;
+  --bg4: #222222;
+  --text: #f0f0f0;
+  --text2: #999;
+  --text3: #555;
+  --green: #00C853;
+  --red: #FF1744;
+  --green-dim: rgba(0, 200, 83, 0.12);
+  --red-dim: rgba(255, 23, 68, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #000;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+input {
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--bg4);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: var(--orange);
+  background: var(--bg2);
+}
+
+input::placeholder { color: var(--text3); }
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.logo-atom {
+  font-size: 32px;
+  display: inline-block;
+}
+
+.logo-atom.spinning {
+  animation: spin 1s linear infinite;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.back-btn {
+  background: var(--bg3);
+  border: none;
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.back-btn:hover { background: var(--bg4); }
+
+.empty-txn {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text2);
+}
+
+.empty-txn button {
+  margin-top: 16px;
+  background: var(--orange-dim);
+  color: var(--orange);
+  border: 1px solid var(--orange);
+  padding: 12px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
