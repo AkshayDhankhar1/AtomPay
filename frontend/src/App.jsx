@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { setForceLogout, api } from "./api";
+import { api } from "./api";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -15,9 +15,6 @@ export default function App() {
 
   useEffect(() => {
     if (token) setPage("dashboard");
-
-    // Set up force logout for api.js
-    setForceLogout(handleLogout);
 
     // Set up token refresh callback
     window.__onTokenRefresh = (newToken) => {
