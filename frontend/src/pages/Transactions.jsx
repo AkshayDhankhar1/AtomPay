@@ -32,6 +32,13 @@ export default function Transactions({ token, navigate }) {
   const totalSent = txns.filter(t => t.type === "debit" && t.status === "success").reduce((a, b) => a + b.amount, 0);
   const totalReceived = txns.filter(t => t.type === "credit" && t.status === "success").reduce((a, b) => a + b.amount, 0);
 
+  const handlePayAgain = (tx) => {
+    navigate("transfer", {
+      receiverUsername: tx.peerUsername,
+      amount: String(tx.amount)
+    });
+  };
+
   return (
     <div className="txn-page">
       <div className="txn-header">
@@ -80,15 +87,32 @@ export default function Transactions({ token, navigate }) {
               </div>
               <div className="txn-info">
                 <div className="txn-top-row">
-                  <span className="txn-id-full">{tx.transactionId?.slice(0, 16)}...</span>
+                  <span className="txn-peer-name">
+                    {tx.type === "debit" ? "To" : "From"}{" "}
+                    <strong>@{tx.peerUsername || "unknown"}</strong>
+                  </span>
                   <span className={`txn-amount-lg ${tx.type}`}>
                     {tx.type === "debit" ? "-" : "+"}{formatAmount(tx.amount)}
                   </span>
                 </div>
+                {tx.note && (
+                  <div className="txn-note-row">
+                    <span className="txn-note">💬 {tx.note}</span>
+                  </div>
+                )}
                 <div className="txn-bottom-row">
                   <span className="txn-date-full">{formatDate(tx.createdAt)}</span>
                   <span className={`txn-status-badge ${tx.status}`}>{tx.status}</span>
                 </div>
+                {/* Pay Again button — only for successful debit transactions */}
+                {tx.type === "debit" && tx.status === "success" && tx.peerUsername && (
+                  <button
+                    className="pay-again-btn"
+                    onClick={() => handlePayAgain(tx)}
+                  >
+                    ↑ Pay Again
+                  </button>
+                )}
               </div>
             </div>
           ))}

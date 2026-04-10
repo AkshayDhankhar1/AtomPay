@@ -21,7 +21,7 @@ export default function Signup({ onLogin, goToLogin }) {
         method: "POST",
         body: JSON.stringify(form),
       });
-      onLogin(data.token, data.user);
+      onLogin(data.accessToken, data.refreshToken, data.user);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 const startServer=async()=>{
+    if(!process.env.MONGO_URL) throw new Error('Mongo url required');
     await connectDB();
     app.get("/api",async function(req,res){
         res.status(200).json({

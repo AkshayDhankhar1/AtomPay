@@ -56,7 +56,7 @@ export default function Login({ onLogin, goToSignup }) {
             otp: form.otp
         }),
       });
-      onLogin(data.token, data.user);
+      onLogin(data.accessToken, data.refreshToken, data.user);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,162 +1,102 @@
 <div align="center">
 
-# ⚡ AtomPay
-### Production-Grade Digital Payment Wallet API
+# ⚡ AtomPay 
+### A Production-Grade Digital Wallet Built with Precision & Care
 
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
-![Zod](https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white)
 
-**[GitHub](https://github.com/AkshayDhankhar1)**
+**[Built by Akshay Dhankhar](https://github.com/AkshayDhankhar1)**
 
-*Not a tutorial project. Built to understand what actually happens when ₹500 moves from one wallet to another — and what can go wrong.*
+*Not just another tutorial project. Built to understand what actually happens when ₹500 moves from one wallet to another, and how to protect it when things go wrong in the middle.*
 
 </div>
 
 ---
 
-## What is AtomPay?
+## 🙋‍♂️ The Story Behind AtomPay
 
-A digital payment wallet backend with the internals exposed. Most payment apps hide the complexity — AtomPay is built specifically to implement it: atomic transfers, race condition safety, fraud limits, and clean failure handling.
+Picture this: You are at a tea stall, you scan the QR code, press pay, and your signal drops. You hit retry. *Bam!* Your account is debited twice. We've all been there, and honestly? *Dimaag kharab ho jata hai.* 
 
-Think Paytm internals, not Paytm features.
+I built AtomPay because I wanted to look under the hood of digital payment systems. Most apps hide the complexity, but AtomPay embraces it. It's built on a singular, non-negotiable philosophy: **Jab paise hawa mein hote hain, 'hope' is not an acceptable architecture.** 
 
----
-
-## What's Built
-
-### Auth & Security
-- JWT authentication — tokens expire in 4 days
-- Passwords and UPI PINs hashed separately with bcrypt — two independent security layers
-- `select: false` on both — they never appear in any DB query response
-- Zod validation on every route — bad input is rejected before it touches the database
-- Change password and change PIN — both require the old credential before updating
-
-### Wallet & Transactions
-- Atomic money transfers via MongoDB sessions — 3 documents update together or not at all
-- ₹5,000 signup bonus — wallet is auto-created the moment a user registers
-- Wallet states: `Active` / `Frozen` / `Closed` — enforced on both sender and receiver
-- Every transaction is tagged debit or credit from the user's perspective
-- Transaction lifecycle: `pending` → `success` or `failed` with reason stored
-
-### Fraud Prevention
-- ₹1,00,000 per-day transfer cap — calculated with MongoDB aggregation pipeline on successful transactions from the last 24 hours, same approach as real UPI
-- Self-transfers blocked
-- Balance verified twice — once before session (fast reject), once inside session (race condition safety)
+Every single feature here—from atomic transactions to idempotency keys—was written to solve a real-world edge case. It's professional-grade, but hand-crafted with a deeply personal obsession with breaking things and fixing them.
 
 ---
 
-## Architecture
+## 🚀 The Core Philosophy (Features)
 
-```
-AtomPay/
-├── controllers/
-│   ├── auth.controller.js          # Signup, Login, Change Password, Change PIN
-│   ├── transactions.controller.js  # Transfer — session logic + all fraud checks
-│   └── wallet.controller.js        # Balance + transaction history
-│
-├── db/
-│   ├── users.js                    # password + hashedPin both select:false
-│   ├── wallet.js                   # Active / Frozen / Closed
-│   └── transections.js             # pending → success/failed with failureReason
-│
-├── middlewares/
-│   ├── auth.middlewares.js         # JWT verify, separates expired vs invalid token
-│   └── validate.js                 # Zod middleware — rejects before controller
-│
-├── validators/
-│   ├── auth.schema.js              # signup, login, changePassword, changePin
-│   └── transaction.schema.js       # transfer with amount, pin, optional note
-│
-└── utils/
-    └── jwt.js                      # Single place for token generation
+Kyunki security aur reliability me koi jugaad nahi chalta. 🛡️
+
+### 1. Bulletproof Transactions (The Backend Heartbeat)
+- **All or Nothing:** Atomic money transfers via MongoDB sessions. If step 14 fails, steps 1 through 13 rollback automatically. No partial credits, no missing funds.
+- **Race Condition Safety:** Balance is checked *twice* (once outside the transaction, once *inside* the locked session) to prevent concurrent double-spending.
+- **Idempotency Keys:** Network went buffering? The frontend generates an `Idempotency-Key` so backend caches the response. No more accidental double charges on retries!
+
+### 2. Fort Knox Level Security 
+- **Dual Tokens:** 15-minute Access Tokens paired with 7-day Refresh Tokens. 
+- **OTP Verification:** Email OTPs sent via NodeMailer using `speakeasy`, acting as a mandatory 2FA.
+- **Independent Hashes:** UPI PINs and Passwords are hashed separately (`bcrypt`) and protected via `select: false`.
+- **In-Memory Rate Limiting:** Custom middleware to block brute-force attacks on signup/login routes. Spammers are blocked natively.
+
+### 3. Beautiful & Responsive Frontend (React + Vite)
+- Polished, mobile-responsive UI specifically tailored to feel like a premium Fintech app (think Cred/PhonePe vibes).
+- Real-time QR Code scanning integrated directly into the browser.
+- Seamless, micro-animated user-flows.
+
+---
+
+## 🏗️ How a Transfer *Actually* Works
+
+When you click "Pay", a very intense checklist runs in milliseconds:
+
+```text
+1.  Basic Checks: Amount ≥ ₹1? Self-transfer? Sender/Receiver active?
+2.  PIN Verification: Compare hashed UPI PIN.
+3.  Fraud Check: Run DB Aggregation -> Last 24hr sent + this amount ≤ ₹1,00,000?
+4.  Idempotency Check: Was a request with this exact ID already handled?
+5.  → START MONGODB SESSION
+6.  Re-fetch both wallets & Re-check balances INSIDE the session lock 🔒
+7.  Save transaction document as "pending"
+8.  Deduct sender, credit receiver
+9.  Update transaction document to "success"
+10. → COMMIT SESSION
+
+💥 On ANY failure between step 5 and 10:
+→ Session aborts completely.
+→ Both wallets revert to their exact previous state safely.
+→ Transaction record is marked "failed" so the user knows exactly why.
 ```
 
 ---
 
-## API
+## 💻 Get This Running Locally (Sirf 5 min lagte hain!
+## 📅 The Journey So Far (What's Next?)
 
-### `/api/auth`
+I've tackled the hardest parts first:
+- [x] Atomic Database Transactions
+- [x] Aggregation-based Daily Caps
+- [x] Email OTP authentication
+- [x] Idempotency for network drops
+- [x] Rate Limiting
+- [x] Real-time QR Code Payments
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/signup` | ❌ | Register — wallet created automatically |
-| `POST` | `/login` | ❌ | Returns JWT |
-| `PATCH` | `/change-password` | ✅ | Old password required |
-| `PATCH` | `/change-pin` | ✅ | Old PIN required |
-
-### `/api/wallet`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `GET` | `/balance` | ✅ | Balance + wallet status |
-| `GET` | `/transactions` | ✅ | Last 50, newest first, debit/credit tagged |
-
-### `/api/transaction`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/transfer` | ✅ | Send money — PIN required |
-
----
-
-## How a Transfer Actually Works
-
-```
-1.  Amount ≥ ₹1?
-2.  Sender exists + active?
-3.  Sender wallet Active?
-4.  Receiver exists + active?
-5.  Receiver wallet Active?
-6.  PIN correct? (bcrypt compare)
-7.  Balance sufficient?
-8.  Last 24hr total + this amount ≤ ₹1,00,000? (aggregation)
-9.  → Start MongoDB session
-10. Re-fetch both wallets inside session
-11. Re-check balance inside session        ← closes race condition window
-12. Save transaction as "pending"
-13. Deduct sender, credit receiver
-14. Update transaction to "success"
-15. Commit
-
-On any failure after step 9:
-→ Session aborts — both wallets revert
-→ Transaction saved as "failed" with reason
-```
-
----
-
-## Why These Decisions
-
-**Sessions for transfers** — without them, a crash between steps 13 and 14 leaves one wallet updated and the other not. Sessions make it all-or-nothing.
-
-**Double balance check** — the check at step 7 is fast. But between step 7 and step 13, a second concurrent request could spend the same money. Step 11 inside the session closes that gap.
-
-**Aggregation for daily limit** — doing `Transaction.find()` and summing in JS loads all documents into memory. Aggregation computes the sum at the DB level. Same result, scales differently.
-
----
-
-## What's Next
-
-- [ ] Idempotency keys — so network retries don't double-charge
-- [ ] Refresh tokens
+Still cooking:
 - [ ] PIN lockout after 3 wrong attempts
-- [ ] Admin routes — freeze/close any wallet
-- [ ] Request money
-- [ ] Monthly spend analytics
-- [ ] Rate limiting
-- [ ] OTP login
-- [ ] QR code per wallet
-- [ ] Pagination
+- [ ] Wallet-to-Bank mock withdrawals
+- [ ] Split Bill & Request Money functionality
+- [ ] Webhooks
+- [ ] Reconciliation Engine
 
 ---
 
 <div align="center">
 
+### Thank you for checking out AtomPay.
+*Whether you're breaking the code, hiring me, or just reading through, I appreciate your time. Happy Coding! ✨*
 Built by **[Akshy Dhankhar](https://github.com/AkshayDhankhar1)**
-
-*The interesting code is in `transactions.controller.js` — specifically the session logic and the aggregation pipeline for the daily limit.*
 
 </div>

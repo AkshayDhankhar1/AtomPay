@@ -5,7 +5,7 @@ import "../styles/dashboard.css";
 
 export default function Dashboard({ token, user, navigate, onLogout }) {
   const [wallet, setWallet] = useState(null);
-  const [txns, setTxns] = useState([]);
+  const [allTxns, setAllTxns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [showQR, setShowQR] = useState(false);
@@ -18,15 +18,22 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
           api("/wallet/transactions", {}, token),
         ]);
         setWallet(w);
-        setTxns(t.slice(0, 5));
+        setAllTxns(t);
       } catch (err) {
-        if (err.message.includes("expired")) onLogout();
+        if (err.message.includes("expired") || err.message.includes("Session expired")) onLogout();
       } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  const recentTxns = allTxns.slice(0, 5);
+
+  // Daily limit uses ALL transactions, not just recent 5
+  const dailyDebitTotal = allTxns
+    .filter(t => t.type === "debit" && t.status === "success")
+    .reduce((a, b) => a + b.amount, 0);
 
   const formatAmount = (n) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
@@ -118,16 +125,14 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
         <div className="limit-bar-header">
           <span>Daily Limit Used</span>
           <span className="limit-bar-amt">
-            {formatAmount(txns.filter(t => t.type === "debit").reduce((a, b) => a + b.amount, 0))} / ₹1,00,000
+            {formatAmount(dailyDebitTotal)} / ₹1,00,000
           </span>
         </div>
         <div className="limit-bar-track">
           <div
             className="limit-bar-fill"
             style={{
-              width: `${Math.min(
-                (txns.filter(t => t.type === "debit").reduce((a, b) => a + b.amount, 0) / 100000) * 100, 100
-              )}%`
+              width: `${Math.min((dailyDebitTotal / 100000) * 100, 100)}%`
             }}
           />
         </div>
@@ -140,19 +145,21 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
           <span onClick={() => navigate("transactions")}>View all →</span>
         </div>
 
-        {txns.length === 0 ? (
+        {recentTxns.length === 0 ? (
           <div className="empty-txn">
             <p>Abhi tak koi transaction nahi</p>
             <button onClick={() => navigate("transfer")}>Pehla payment bhejo ⚡</button>
           </div>
         ) : (
-          txns.map((tx, i) => (
+          recentTxns.map((tx, i) => (
             <div className="txn-item" key={i}>
               <div className={`txn-icon ${tx.type}`}>
                 {tx.type === "debit" ? "↑" : "↓"}
               </div>
               <div className="txn-details">
-                <span className="txn-id">{tx.transactionId?.slice(0, 12)}...</span>
+                <span className="txn-id">
+                  {tx.type === "debit" ? "To" : "From"} @{tx.peerUsername || "unknown"}
+                </span>
                 <span className="txn-date">{formatDate(tx.createdAt)}</span>
               </div>
               <div className={`txn-amount ${tx.type}`}>

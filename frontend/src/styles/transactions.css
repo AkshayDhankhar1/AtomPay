@@ -119,13 +119,17 @@
 
 .txn-top-row { margin-bottom: 6px; }
 
-.txn-id-full {
+.txn-peer-name {
   font-size: 13px;
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 160px;
+}
+
+.txn-peer-name strong {
+  color: var(--orange);
 }
 
 .txn-amount-lg {
@@ -137,6 +141,19 @@
 
 .txn-amount-lg.debit { color: var(--red); }
 .txn-amount-lg.credit { color: var(--green); }
+
+.txn-note-row {
+  margin: 4px 0;
+}
+
+.txn-note {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--bg3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
 
 .txn-date-full { font-size: 11px; color: var(--text3); }
 
@@ -152,3 +169,22 @@
 .txn-status-badge.success { background: var(--green-dim); color: var(--green); }
 .txn-status-badge.failed { background: var(--red-dim); color: var(--red); }
 .txn-status-badge.pending { background: rgba(255,193,7,0.12); color: #FFC107; }
+
+.pay-again-btn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: var(--orange-dim);
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.pay-again-btn:hover {
+  background: var(--orange);
+  color: #000;
+}

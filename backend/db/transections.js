@@ -29,6 +29,17 @@ const transactionSchema=new mongoose.Schema({
     },
     failureReason:{
         type:String
+    },
+    note:{
+        type:String
+    },
+    senderUsername:{
+        type:String,
+        required:true
+    },
+    receiverUsername:{
+        type:String,
+        required:true
     }
 },{timestamps:true
 })

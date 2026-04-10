@@ -24,7 +24,7 @@ const userSchema=new mongoose.Schema({
         unique : true,
         lowercase:true,
         trim : true,
-        minlength :true
+        minlength: 3
     },hashedPin:{
         type: String,
         required :true,

@@ -5,12 +5,18 @@ import "../styles/transfer.css";
 
 const QUICK_AMOUNTS = [100, 500, 1000, 2000, 5000];
 
-export default function Transfer({ token, navigate }) {
+export default function Transfer({ token, navigate, initialData }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ receiverUsername: "", amount: "", note: "", pin: "" });
+  const [form, setForm] = useState({
+    receiverUsername: initialData?.receiverUsername || "",
+    amount: initialData?.amount || "",
+    note: "",
+    pin: ""
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState(crypto.randomUUID());
   const scannerRef = useRef(null);
   const scannerInstanceRef = useRef(null);
 
@@ -87,13 +93,24 @@ export default function Transfer({ token, navigate }) {
           pin: form.pin,
           note: form.note || undefined,
         }),
-      }, token);
+      }, token, {
+        "Idempotency-Key": idempotencyKey
+      });
       setStep(3);
     } catch (err) {
       setError(err.message);
+      // Generate new idempotency key on error so user can retry
+      setIdempotencyKey(crypto.randomUUID());
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleNewTransfer = () => {
+    setForm({ receiverUsername: "", amount: "", note: "", pin: "" });
+    setStep(1);
+    setError("");
+    setIdempotencyKey(crypto.randomUUID());
   };
 
   const formatAmount = (n) =>
@@ -234,10 +251,7 @@ export default function Transfer({ token, navigate }) {
           </div>
           <h2>Paisa Bhej Diya!</h2>
           <p>{formatAmount(Number(form.amount))} successfully sent to @{form.receiverUsername}</p>
-          <button className="transfer-btn" onClick={() => {
-            setForm({ receiverUsername: "", amount: "", note: "", pin: "" });
-            setStep(1);
-          }}>
+          <button className="transfer-btn" onClick={handleNewTransfer}>
             Ek aur bhejo
           </button>
           <button className="transfer-btn-outline" onClick={() => navigate("dashboard")}>
