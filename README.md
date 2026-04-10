@@ -97,6 +97,6 @@ Still cooking:
 
 ### Thank you for checking out AtomPay.
 *Whether you're breaking the code, hiring me, or just reading through, I appreciate your time. Happy Coding! ✨*
-Built by **[Akshy Dhankhar](https://github.com/AkshayDhankhar1)**
+Built by **[Akshay Dhankhar](https://github.com/AkshayDhankhar1)**
 
 </div>
