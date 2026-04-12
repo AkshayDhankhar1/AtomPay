@@ -1,10 +1,11 @@
-exports.validate=(schema)=>(req,res,next)=>{
-    try{
+exports.validate = (schema) => (req, res, next) => {
+    try {
         schema.parse(req.body);
         next();
-    }catch(err){
+    } catch (err) {
         return res.status(400).json({
-            msg : "you entered wrong inputs"
-        })
+            msg: "you entered wrong inputs",
+            errors: err.errors
+        });
     }
-}
+};
