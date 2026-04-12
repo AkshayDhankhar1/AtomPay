@@ -1,5 +1,5 @@
-// const BASE = "https://atompay.onrender.com/api";
-const BASE = "http://localhost:3000/api";
+const BASE = "https://atompay-production.up.railway.app/api";
+// const BASE = "http://localhost:3000/api";
 export const api = async (path, options = {}, token = null) => {
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;

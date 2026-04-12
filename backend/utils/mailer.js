@@ -1,33 +1,23 @@
-const nodemailer = require("nodemailer");
+const Brevo = require("@getbrevo/brevo");
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS
-  }
-});
+const client = Brevo.ApiClient.instance;
+client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+
 const sendOTPEmail = async (email, otp) => {
-    await transporter.sendMail({
-        from: `"AtomPay ⚡" <${process.env.EMAIL}>`,
-        to: email,
-        subject: "Your AtomPay Login OTP",
-        html: `
-            <div style="font-family:sans-serif;max-width:400px;margin:auto">
-                <h2 style="color:#FF5722">⚡ AtomPay</h2>
-                <p>Login OTP:</p>
-                <h1 style="color:#FF5722;letter-spacing:8px;font-size:36px">
-                    ${otp}
-                </h1>
-                <p>10 minutes mein expire hoga.</p>
-                <p style="color:#999;font-size:12px">
-                    Agar tumne request nahi ki — ignore karo.
-                </p>
-            </div>
-        `
-    });
+  const apiInstance = new Brevo.TransactionalEmailsApi();
+  await apiInstance.sendTransacEmail({
+    sender: { email: "akshaydhankhar62@gmail.com", name: "AtomPay" },
+    to: [{ email }],
+    subject: "Your AtomPay OTP ⚡",
+    htmlContent: `
+      <div style="font-family:sans-serif;max-width:400px;margin:auto">
+        <h2 style="color:#FF5722">⚡ AtomPay</h2>
+        <p>Your Login OTP:</p>
+        <h1 style="color:#FF5722;letter-spacing:8px">${otp}</h1>
+        <p>Expires in 10 minutes.</p>
+      </div>
+    `
+  });
 };
 
 module.exports = sendOTPEmail;
