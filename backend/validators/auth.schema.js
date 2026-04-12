@@ -5,7 +5,8 @@ exports.signupSchema = zod.object({
     email: zod.string().email(),
     password: zod.string().min(8).max(32),
     username: zod.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
-    pin: zod.string().regex(/^\d{6}$/)
+    pin: zod.string().regex(/^\d{6}$/),
+    otp: zod.string().length(6)
 })
 
 exports.loginSchema = zod.object({
@@ -26,6 +27,10 @@ exports.changePinSchema = zod.object({
 exports.sendOTPSchema = zod.object({
     email: zod.string().email(),
     password: zod.string().min(1)
+});
+
+exports.sendSignupOTPSchema = zod.object({
+    email: zod.string().email()
 });
 
 exports.verifyOTPSchema = zod.object({

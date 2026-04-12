@@ -4,6 +4,7 @@ const {
     signup, login,
     changePassword, changePin,
     sendOTP, verifyOTP,
+    sendSignupOTP,
     refresh, logout
 } = require("../controllers/auth.controller");
 
@@ -11,6 +12,7 @@ const {
     signupSchema, loginSchema,
     changePasswordSchema, changePinSchema,
     sendOTPSchema, verifyOTPSchema,
+    sendSignupOTPSchema,
     refreshSchema, logoutSchema
 } = require("../validators/auth.schema");
 const authMiddleware = require("../middlewares/auth.middlewares");
@@ -26,6 +28,7 @@ router.post("/login", loginLimiter, validate(loginSchema), login);
 router.patch("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);
 router.patch("/change-pin", authMiddleware, validate(changePinSchema), changePin);
 router.post("/send-otp", validate(sendOTPSchema), sendOTP);
+router.post("/send-signup-otp", validate(sendSignupOTPSchema), sendSignupOTP);
 router.post("/verify-otp", validate(verifyOTPSchema), verifyOTP);
 router.post("/refresh", validate(refreshSchema), refresh);
 router.post("/logout", authMiddleware, validate(logoutSchema), logout);

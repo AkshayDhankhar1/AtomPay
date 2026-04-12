@@ -17,8 +17,13 @@ exports.signup = async (req, res) => {
         const email = bod.email;
         const password = bod.password;
         const pin = bod.pin;
+        const otp = bod.otp;
         if (!/^\d{6}$/.test(pin)) {
             return res.status(400).json({ msg: "you entered wrong pin" });
+        }
+        const isValid = verifyOTP(email, otp);
+        if (!isValid) {
+            return res.status(400).json({ msg: "Wrong or expired OTP" });
         }
         const f = await User.findOne({ email: email });
         const t = await User.findOne({ username: username });
@@ -186,6 +191,31 @@ exports.changePin = async (req, res) => {
         })
     }
 }
+
+exports.sendSignupOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Check if email already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                msg: "Email already exists"
+            });
+        }
+
+        const otp = generateOTP(email);
+        await sendOTPEmail(email, otp);
+
+        return res.status(200).json({
+            msg: "OTP sent to your email for signup"
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: err.message });
+    }
+};
 
 exports.sendOTP = async (req, res) => {
     try {
