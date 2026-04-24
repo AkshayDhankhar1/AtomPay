@@ -73,7 +73,6 @@ When you click "Pay", a very intense checklist runs in milliseconds:
 
 ---
 
-## 💻 Get This Running Locally (Sirf 5 min lagte hain!
 ## 📅 The Journey So Far (What's Next?)
 
 I've tackled the hardest parts first:
