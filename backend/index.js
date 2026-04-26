@@ -6,6 +6,7 @@ const authRouter = require("./routes/auth.routes");
 const transactionRouter = require("./routes/transection.routes");
 const walletRouter = require("./routes/wallet.routes");
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: "*" }));
 app.use(express.json());

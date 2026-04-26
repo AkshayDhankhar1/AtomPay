@@ -1,3 +1,13 @@
+/**
+ * In-memory rate limiter middleware.
+ * No external packages required – uses a simple Map with automatic cleanup.
+ *
+ * Options:
+ *   windowMs  – time window in milliseconds (default: 15 min)
+ *   max       – max requests per window per IP (default: 10)
+ *   message   – error message returned when limit is exceeded
+ */
+
 const rateLimiter = ({
     windowMs = 15 * 60 * 1000,  // 15 minutes
     max = 10,                   // 10 requests per window
