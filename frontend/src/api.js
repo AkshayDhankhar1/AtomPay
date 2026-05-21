@@ -1,4 +1,4 @@
-const BASE = "https://atompay-production.up.railway.app/api";
+const BASE = "https://api.atompay.co.in/api";
 // const BASE = "https://atompay.onrender.com/api";
 // const BASE = "http://localhost:3000/api";
 
