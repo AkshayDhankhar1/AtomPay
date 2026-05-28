@@ -60,7 +60,7 @@ export default function Signup({ onLogin, goToLogin }) {
           <span className="logo-atom">⚡</span>
           <span className="logo-text">AtomPay</span>
         </div>
-        <p className="auth-subtitle">₹5,000 signup bonus ke saath shuru karo</p>
+        <p className="auth-subtitle">Get started with a ₹5,000 signup bonus</p>
 
         <div className="auth-form">
           {!otpSent ? (
@@ -112,8 +112,8 @@ export default function Signup({ onLogin, goToLogin }) {
           )}
 
           <p className="auth-switch">
-            Already account hai?{" "}
-            <span onClick={goToLogin}>Login karo</span>
+            Already have an account?{" "}
+            <span onClick={goToLogin}>Log in</span>
           </p>
         </div>
       </div>

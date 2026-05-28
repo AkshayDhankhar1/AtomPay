@@ -20,16 +20,20 @@ const { validate } = require("../middlewares/validate");
 const { rateLimiter } = require("../middlewares/rateLimiter");
 
 // Rate limiters for auth endpoints
-const signupLimiter = rateLimiter({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many signup attempts, please try again after 15 minutes." });
-const loginLimiter  = rateLimiter({ windowMs: 15 * 60 * 1000, max: 10, message: "Too many login attempts, please try again after 15 minutes." });
+const signupLimiter = rateLimiter({ windowMs: 15 * 60 * 1000, max: 15, message: "Too many signup attempts, please try again after 15 minutes." });
+const loginLimiter  = rateLimiter({ windowMs: 15 * 60 * 1000, max: 20, message: "Too many login attempts, please try again after 15 minutes." });
+
+// Rate limiters for OTP endpoints — prevents OTP flooding / email abuse
+const otpLimiter = rateLimiter({ windowMs: 60 * 1000, max: 5, message: "Too many OTP requests. Please wait 1 minute." });
+const verifyOTPLimiter = rateLimiter({ windowMs: 15 * 60 * 1000, max: 15, message: "Too many OTP verification attempts." });
 
 router.post("/signup", signupLimiter, validate(signupSchema), signup);
 router.post("/login", loginLimiter, validate(loginSchema), login);
 router.patch("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);
 router.patch("/change-pin", authMiddleware, validate(changePinSchema), changePin);
-router.post("/send-otp", validate(sendOTPSchema), sendOTP);
-router.post("/send-signup-otp", validate(sendSignupOTPSchema), sendSignupOTP);
-router.post("/verify-otp", validate(verifyOTPSchema), verifyOTP);
+router.post("/send-otp", otpLimiter, validate(sendOTPSchema), sendOTP);
+router.post("/send-signup-otp", otpLimiter, validate(sendSignupOTPSchema), sendSignupOTP);
+router.post("/verify-otp", verifyOTPLimiter, validate(verifyOTPSchema), verifyOTP);
 router.post("/refresh", validate(refreshSchema), refresh);
 router.post("/logout", authMiddleware, validate(logoutSchema), logout);
 

@@ -4,7 +4,7 @@ exports.validate = (schema) => (req, res, next) => {
         next();
     } catch (err) {
         return res.status(400).json({
-            msg: "you entered wrong inputs",
+            msg: "Invalid input provided",
             errors: err.errors
         });
     }

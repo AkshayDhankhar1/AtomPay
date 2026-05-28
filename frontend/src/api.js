@@ -1,5 +1,4 @@
-const BASE = "https://atompay-production.up.railway.app/api";
-// const BASE = "https://atompay.onrender.com/api";
+const BASE = "https://api.atompay.co.in/api";
 // const BASE = "http://localhost:3000/api";
 
 let isRefreshing = false;
@@ -19,7 +18,7 @@ export const api = async (path, options = {}, token = null) => {
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let res = await fetch(`${BASE}${path}`, { ...options, headers });
-  
+
   // Handling 204 No Content or empty response body just in case
   let data;
   const text = await res.text();
@@ -33,7 +32,28 @@ export const api = async (path, options = {}, token = null) => {
   if (res.status === 401 && token) {
     const refreshToken = localStorage.getItem("refreshToken");
     if (refreshToken) {
-      if (!isRefreshing) {
+      // FIX: If another request is already refreshing, subscribe and wait.
+      // Only the first 401 initiates the refresh; all others queue up.
+      if (isRefreshing) {
+        // Wait for the in-progress refresh to finish
+        const newToken = await new Promise((resolve) => {
+          subscribeTokenRefresh((t) => resolve(t));
+        });
+
+        if (newToken) {
+          headers["Authorization"] = `Bearer ${newToken}`;
+          res = await fetch(`${BASE}${path}`, { ...options, headers });
+          const retryText = await res.text();
+          try {
+            data = retryText ? JSON.parse(retryText) : {};
+          } catch (e) {
+            data = { msg: retryText };
+          }
+        } else {
+          throw new Error("Session expired, please login again");
+        }
+      } else {
+        // This is the first 401 — initiate the refresh
         isRefreshing = true;
         try {
           const refreshRes = await fetch(`${BASE}/auth/refresh`, {
@@ -41,7 +61,7 @@ export const api = async (path, options = {}, token = null) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken })
           });
-          
+
           const refreshText = await refreshRes.text();
           let refreshData;
           try {
@@ -49,25 +69,35 @@ export const api = async (path, options = {}, token = null) => {
           } catch (e) {
             refreshData = {};
           }
-          
+
           if (!refreshRes.ok) {
-            // Refresh token failed/expired
             throw new Error("Session expired, please login again");
           }
 
           const newAccessToken = refreshData.accessToken;
           localStorage.setItem("token", newAccessToken);
-          
+
           if (window.__onTokenRefresh) {
             window.__onTokenRefresh(newAccessToken);
           }
 
           isRefreshing = false;
           onRefreshed(newAccessToken);
+
+          // FIX: Retry the CURRENT request with the new token
+          // (Previously this fell through without retrying for the initiating request)
+          headers["Authorization"] = `Bearer ${newAccessToken}`;
+          res = await fetch(`${BASE}${path}`, { ...options, headers });
+          const retryText = await res.text();
+          try {
+            data = retryText ? JSON.parse(retryText) : {};
+          } catch (e) {
+            data = { msg: retryText };
+          }
         } catch (err) {
           isRefreshing = false;
-          onRefreshed(null); // release waiting requests
-          
+          onRefreshed(null);
+
           // Clear everything and logout
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
@@ -78,31 +108,19 @@ export const api = async (path, options = {}, token = null) => {
           throw new Error("Session expired, please login again");
         }
       }
-
-      // Wait for the token to be refreshed
-      const newToken = await new Promise((resolve) => {
-        subscribeTokenRefresh((t) => {
-          resolve(t);
-        });
-      });
-
-      if (newToken) {
-        // Retry the original request with the new token
-        headers["Authorization"] = `Bearer ${newToken}`;
-        res = await fetch(`${BASE}${path}`, { ...options, headers });
-        
-        const retryText = await res.text();
-        try {
-          data = retryText ? JSON.parse(retryText) : {};
-        } catch (e) {
-          data = { msg: retryText };
-        }
-      } else {
-        throw new Error("Session expired, please login again");
-      }
     }
   }
 
   if (!res.ok) throw new Error(data.msg || data.message || "Something went wrong");
   return data;
+};
+
+export const checkMaintenance = async () => {
+  try {
+    const res = await fetch(BASE);
+    const data = await res.json();
+    return data.maintenance === true;
+  } catch {
+    return false;
+  }
 };

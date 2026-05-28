@@ -3,10 +3,9 @@
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   width: 100%;
-  max-width: 430px;
   background: rgba(15, 15, 15, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -62,4 +61,11 @@
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.3px;
+}
+
+/* Hide bottom nav on desktop — replaced by SideNav */
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
 }

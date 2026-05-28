@@ -43,5 +43,13 @@ const transactionSchema=new mongoose.Schema({
     }
 },{timestamps:true
 })
+
+// FIX: Add compound index for the daily spending aggregation pipeline
+// This index makes the $match stage efficient: { fromWallet, status, createdAt }
+transactionSchema.index({ fromWallet: 1, status: 1, createdAt: -1 });
+
+// FIX: Add index for wallet transaction lookups (used by getMyTransactions)
+transactionSchema.index({ toWallet: 1, createdAt: -1 });
+
 const Transaction=mongoose.model('Transaction',transactionSchema);
 module.exports =Transaction;

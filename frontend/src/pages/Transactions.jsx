@@ -76,7 +76,7 @@ export default function Transactions({ token, navigate }) {
         <div className="loading-screen"><span className="logo-atom spinning">⚡</span></div>
       ) : filtered.length === 0 ? (
         <div className="empty-txn">
-          <p>Koi transaction nahi mili</p>
+          <p>No transactions found</p>
         </div>
       ) : (
         <div className="txn-list">

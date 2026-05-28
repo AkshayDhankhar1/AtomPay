@@ -74,7 +74,7 @@ exports.transferMoney = async (req, res) => {
 
         if (!receiverWallet) {
             return res.status(400).json({
-                msg: "Receiver does not have a wallet ❌"
+                msg: "Receiver does not have a wallet"
             });
         }
 
@@ -87,15 +87,15 @@ exports.transferMoney = async (req, res) => {
         const isMatch = await bcrypt.compare(pin, sender.hashedPin);
         if (!isMatch) {
             return res.status(400).json({
-                msg: "You entered wrong pin ❌"
+                msg: "You entered wrong pin"
             })
         }
         if (senderWallet.balance < amount) {
             return res.status(400).json({
-                msg: "You don't have sufficient money ❌"
+                msg: "You don't have sufficient money"
             })
         }
-        // aggregation pipeline
+        // aggregation pipeline — uses index on { fromWallet, createdAt, status }
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const result = await Transaction.aggregate([{
             $match: {
@@ -113,7 +113,7 @@ exports.transferMoney = async (req, res) => {
         const totalSent = result[0]?.totalSent || 0;
         if (totalSent + amount > 100000) {
             return res.status(400).json({
-                msg: "You Cann't send money more than 1lakh in 24 hours"
+                msg: "You cannot send more than ₹1,00,000 in 24 hours"
             })
         }
 
@@ -122,7 +122,7 @@ exports.transferMoney = async (req, res) => {
         const senderWalletTx = await Wallet.findOne({ user: senderId }).session(session);
         if (!senderWalletTx) {
             await session.abortTransaction();
-            return res.status(404).json({ msg: "sender wallet does not exists" })
+            return res.status(404).json({ msg: "Sender wallet not found" })
         }
         const receiverWalletTx = await Wallet.findOne({ user: receiver._id }).session(session);
         if (!receiverWalletTx) {
@@ -153,13 +153,13 @@ exports.transferMoney = async (req, res) => {
         await session.commitTransaction();
 
         return res.status(200).json({
-            msg: "Money sent successfully ✅"
+            msg: "Money sent successfully"
         })
     }
     catch (err) {
         console.log(err);
         if (session) {
-            await session.abortTransaction();
+            try { await session.abortTransaction(); } catch (_) { /* already aborted */ }
         }
         if (tx) {
             try {
@@ -179,8 +179,9 @@ exports.transferMoney = async (req, res) => {
                 console.log("Failed to save failed transaction record:", saveErr);
             }
         }
+        // FIX: Don't expose internal error messages to clients
         return res.status(500).json({
-            msg: "something went wrong ❌"
+            msg: "Transaction failed. Please try again."
         });
     } finally {
         if (session) {

@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
-const authMiddleware=(req, res, next) =>{
+const authMiddleware = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    // FIX: Use "msg" consistently (was "message" — mismatched with all controllers)
+    return res.status(401).json({ msg: "No token provided" });
   }
 
   try {
@@ -14,12 +15,13 @@ const authMiddleware=(req, res, next) =>{
     };
     next();
   } catch (err) {
-    if(err.name === "TokenExpiredError"){
+    if (err.name === "TokenExpiredError") {
       return res.status(401).json({
-        msg : "Token Expired Login Again"
+        msg: "Token expired, please login again"
       });
     }
-    return res.status(403).json({ message: "Invalid token" });
+    // FIX: Use "msg" consistently (was "message")
+    return res.status(403).json({ msg: "Invalid token" });
   }
 }
 

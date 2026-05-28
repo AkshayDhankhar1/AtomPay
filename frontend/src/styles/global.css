@@ -132,3 +132,49 @@ input::placeholder { color: var(--text3); }
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
 }
+
+/* ═══════════════════════════════════════
+   App Layout — Responsive
+   ═══════════════════════════════════════ */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/* Mobile: main content is full width */
+@media (max-width: 767px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  .app-main {
+    min-height: 100vh;
+  }
+}
+
+/* Desktop: constrain main content for readability */
+@media (min-width: 768px) {
+  .app-main {
+    max-width: 100%;
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  /* Scrollbar styling */
+  .app-main::-webkit-scrollbar { width: 6px; }
+  .app-main::-webkit-scrollbar-track { background: transparent; }
+  .app-main::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+  }
+  .app-main::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.15);
+  }
+}

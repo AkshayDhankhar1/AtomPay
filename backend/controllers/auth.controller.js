@@ -19,7 +19,7 @@ exports.signup = async (req, res) => {
         const pin = bod.pin;
         const otp = bod.otp;
         if (!/^\d{6}$/.test(pin)) {
-            return res.status(400).json({ msg: "you entered wrong pin" });
+            return res.status(400).json({ msg: "Invalid PIN entered" });
         }
         const isValid = verifyOTP(email, otp);
         if (!isValid) {
@@ -39,6 +39,11 @@ exports.signup = async (req, res) => {
         }
         const hashedPass = await bcrypt.hash(password, 10);
         const hashedPin = await bcrypt.hash(pin, 10);
+
+        // FIX: Generate QR code before the transaction so it can be saved atomically
+        const qrData = `atompay://pay?to=${username}`;
+        const qrBase64 = await QRCode.toDataURL(qrData);
+
         const newUser = new User({
             name: name,
             email: email,
@@ -47,24 +52,22 @@ exports.signup = async (req, res) => {
             hashedPin: hashedPin
         })
         const newWallet = new Wallet({
-            user: newUser._id
+            user: newUser._id,
+            qrCode: qrBase64  // FIX: Include QR code in the initial wallet creation
         })
         const session = await mongoose.startSession(); // session for rollback condition 
         await session.startTransaction();
         try {
             await newUser.save({ session });
             await newWallet.save({ session });
-            const qrData = `atompay://pay?to=${username}`;
-            const qrBase64 = await QRCode.toDataURL(qrData);
             await session.commitTransaction();
-            await Wallet.findOneAndUpdate({ user: newUser._id }, { qrCode: qrBase64 });
         } catch (err) {
             console.log(err);
             await session.abortTransaction();
             if (err.code === 11000) {
                 return res.status(400).json({ msg: "Email or username already exists" });
             }
-            return res.status(400).json({ msg: "Problem making a user" });
+            return res.status(400).json({ msg: "Failed to create user account" });
         }
         finally { await session.endSession(); }
 
@@ -78,8 +81,9 @@ exports.signup = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        // FIX: Don't expose internal error messages to clients
         return res.status(500).json({
-            msg: err.message
+            msg: "An unexpected error occurred. Please try again."
         })
 
     }
@@ -93,7 +97,7 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email: email }).select("+password");
         if (!user) {
             return res.status(404).json({
-                msg: "user does not exists"
+                msg: "User does not exist"
             })
         }
         const isMatch = await bcrypt.compare(userpassword, user.password);
@@ -102,7 +106,7 @@ exports.login = async (req, res) => {
         }
         const tokens = await generateTokenPair(user._id);
         res.json({
-            msg: "login successfull",
+            msg: "Login successful",
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
             user: { id: user._id, username: user.username, role: user.role }
@@ -110,7 +114,7 @@ exports.login = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(500).json({
-            msg: err.message
+            msg: "An unexpected error occurred. Please try again."
         })
     }
 }
@@ -132,11 +136,7 @@ exports.changePassword = async (req, res) => {
             })
         }
         const newPass = req.body.newPassword;
-        if (!newPass || newPass.length < 8) {
-            return res.status(400).json({
-                msg: "Password must be atlest 8 characters"
-            })
-        }
+        // FIX: Removed redundant length check — Zod schema already validates min(8)
         const hashPass = await bcrypt.hash(newPass, 10);
         user.password = hashPass;
         await user.save();
@@ -151,7 +151,7 @@ exports.changePassword = async (req, res) => {
     catch (err) {
         console.log(err);
         return res.status(500).json({
-            msg: err.message
+            msg: "An unexpected error occurred. Please try again."
         })
     }
 }
@@ -169,15 +169,11 @@ exports.changePin = async (req, res) => {
         const isMatch = await bcrypt.compare(oldPin, user.hashedPin);
         if (!isMatch) {
             return res.status(401).json({
-                msg: "You entered Wrong Pin"
+                msg: "Incorrect PIN entered"
             })
         }
         const newPin = req.body.newPin;
-        if (!newPin || newPin.length != 6) {
-            return res.status(400).json({
-                msg: "Enter new pin of length 6"
-            })
-        }
+        // FIX: Removed redundant regex check — Zod schema already validates /^\d{6}$/
         const hashPin = await bcrypt.hash(newPin, 10);
         user.hashedPin = hashPin;
         await user.save();
@@ -187,7 +183,7 @@ exports.changePin = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(500).json({
-            msg: err.message
+            msg: "An unexpected error occurred. Please try again."
         })
     }
 }
@@ -213,7 +209,7 @@ exports.sendSignupOTP = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: err.message });
+        return res.status(500).json({ msg: "Failed to send OTP. Please try again." });
     }
 };
 
@@ -248,7 +244,7 @@ exports.sendOTP = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: err.message });
+        return res.status(500).json({ msg: "Failed to send OTP. Please try again." });
     }
 };
 
@@ -264,6 +260,11 @@ exports.verifyOTP = async (req, res) => {
         }
 
         const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                msg: "User not found"
+            });
+        }
         const tokens = await generateTokenPair(user._id);
 
         return res.status(200).json({
@@ -279,7 +280,7 @@ exports.verifyOTP = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: err.message });
+        return res.status(500).json({ msg: "An unexpected error occurred. Please try again." });
     }
 };
 
@@ -314,7 +315,7 @@ exports.refresh = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: err.message });
+        return res.status(500).json({ msg: "An unexpected error occurred. Please try again." });
     }
 };
 
@@ -330,6 +331,6 @@ exports.logout = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: err.message });
+        return res.status(500).json({ msg: "An unexpected error occurred. Please try again." });
     }
 };

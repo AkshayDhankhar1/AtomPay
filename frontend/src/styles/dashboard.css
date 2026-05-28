@@ -271,8 +271,7 @@
 .txn-amount.debit { color: var(--red); }
 .txn-amount.credit { color: var(--green); }
 
-/* QR Modal — dashboard.css ke end mein add karo */
-
+/* QR Modal */
 .qr-modal-overlay {
   position: fixed;
   inset: 0;
@@ -361,4 +360,130 @@
   padding: 40px;
   color: var(--text2);
   font-size: 14px;
+}
+
+/* ═══════════════════════════════════════
+   DESKTOP RESPONSIVE (≥768px)
+   ═══════════════════════════════════════ */
+@media (min-width: 768px) {
+  .dashboard {
+    padding: 0;
+    min-height: auto;
+  }
+
+  .dash-header {
+    padding: 32px 40px 20px;
+  }
+
+  .dash-name {
+    font-size: 28px;
+  }
+
+  .dash-greeting {
+    font-size: 14px;
+  }
+
+  .dash-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  /* Dashboard grid: balance + limit side by side */
+  .dash-top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 0 40px;
+    margin-bottom: 8px;
+  }
+
+  .balance-card {
+    margin: 0;
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  .balance-amount {
+    font-size: 42px;
+  }
+
+  .limit-bar-section {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .quick-actions {
+    padding: 16px 40px;
+  }
+
+  .action-btn {
+    flex-direction: row;
+    gap: 10px;
+    padding: 16px 20px;
+    border-radius: 14px;
+  }
+
+  .action-icon {
+    font-size: 18px;
+  }
+
+  .recent-section {
+    padding: 8px 40px 40px;
+  }
+
+  .recent-header h3 {
+    font-size: 18px;
+  }
+
+  .txn-item {
+    padding: 16px 20px;
+    border-radius: 14px;
+    gap: 16px;
+  }
+
+  .txn-id {
+    font-size: 14px;
+  }
+
+  .txn-amount {
+    font-size: 16px;
+  }
+
+  /* QR modal: centered on desktop */
+  .qr-modal-overlay {
+    align-items: center;
+  }
+
+  .qr-modal {
+    border-radius: 24px;
+    max-width: 420px;
+  }
+}
+
+/* Large desktop (≥1200px) */
+@media (min-width: 1200px) {
+  .dash-header {
+    padding: 40px 48px 24px;
+  }
+
+  .dash-top-grid {
+    padding: 0 48px;
+  }
+
+  .quick-actions {
+    padding: 20px 48px;
+  }
+
+  .recent-section {
+    padding: 8px 48px 48px;
+  }
+
+  .balance-amount {
+    font-size: 48px;
+  }
 }

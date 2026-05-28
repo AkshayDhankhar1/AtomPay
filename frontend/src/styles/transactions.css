@@ -188,3 +188,78 @@
   background: var(--orange);
   color: #000;
 }
+
+/* ═══════════════════════════════════════
+   DESKTOP RESPONSIVE (≥768px)
+   ═══════════════════════════════════════ */
+@media (min-width: 768px) {
+  .txn-page {
+    padding: 0;
+  }
+
+  .txn-header {
+    padding: 32px 40px 20px;
+  }
+
+  .txn-header h2 {
+    font-size: 24px;
+  }
+
+  .txn-summary {
+    padding: 0 40px 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .txn-summary-card {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .txn-summary-card.sent .summary-val,
+  .txn-summary-card.received .summary-val {
+    font-size: 20px;
+  }
+
+  .filter-tabs {
+    padding: 0 40px 16px;
+  }
+
+  .txn-list {
+    padding: 0 40px 40px;
+  }
+
+  .txn-card {
+    padding: 18px 24px;
+    gap: 16px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+  }
+
+  .txn-peer-name {
+    font-size: 14px;
+    max-width: 300px;
+  }
+
+  .txn-amount-lg {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .txn-header {
+    padding: 40px 48px 24px;
+  }
+
+  .txn-summary {
+    padding: 0 48px 20px;
+  }
+
+  .filter-tabs {
+    padding: 0 48px 20px;
+  }
+
+  .txn-list {
+    padding: 0 48px 48px;
+  }
+}

@@ -24,7 +24,7 @@ export default function Login({ onLogin, goToSignup }) {
   const handleSendOTP = async () => {
     setError("");
     if (!form.email || !form.password)
-      return setError("Email aur password daalo");
+      return setError("Enter your email and password");
     setLoading(true);
     try {
       await api("/auth/send-otp", {
@@ -46,7 +46,7 @@ export default function Login({ onLogin, goToSignup }) {
   const handleVerifyOTP = async () => {
     setError("");
     if (!form.otp || form.otp.length !== 6)
-      return setError("6-digit OTP daalo");
+      return setError("Enter the 6-digit OTP");
     setLoading(true);
     try {
       const data = await api("/auth/verify-otp", {
@@ -74,8 +74,8 @@ export default function Login({ onLogin, goToSignup }) {
         </div>
         <p className="auth-subtitle">
           {step === 1
-            ? "India ka naya payment wallet"
-            : `OTP bheja gaya — ${form.email}`}
+            ? "India's new payment wallet"
+            : `OTP sent to — ${form.email}`}
         </p>
 
         {/* Step indicator */}
@@ -213,14 +213,14 @@ export default function Login({ onLogin, goToSignup }) {
                     setForm({ ...form, otp: "" });
                 }}
               >
-                ← Email change karo
+                ← Change email
               </button>
             </>
           )}
 
           <p className="auth-switch">
-            Account nahi hai?{" "}
-            <span onClick={goToSignup}>Sign up karo</span>
+            Don't have an account?{" "}
+            <span onClick={goToSignup}>Sign up</span>
           </p>
         </div>
       </div>

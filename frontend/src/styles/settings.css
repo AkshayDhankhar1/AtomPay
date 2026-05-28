@@ -187,3 +187,73 @@
 }
 
 .panel-btn-cancel:hover { border-color: var(--text3); color: var(--text); }
+
+/* ═══════════════════════════════════════
+   DESKTOP RESPONSIVE (≥768px)
+   ═══════════════════════════════════════ */
+@media (min-width: 768px) {
+  .settings-page {
+    padding: 0;
+  }
+
+  .settings-header {
+    padding: 32px 40px 20px;
+  }
+
+  .settings-header h2 {
+    font-size: 24px;
+  }
+
+  .profile-card {
+    margin: 0 40px 24px;
+    padding: 28px;
+    border-radius: 20px;
+  }
+
+  .profile-avatar {
+    width: 68px;
+    height: 68px;
+    font-size: 28px;
+  }
+
+  .profile-info h3 {
+    font-size: 20px;
+  }
+
+  .settings-list {
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .setting-item {
+    padding: 20px 18px;
+    border-radius: 18px;
+  }
+
+  /* Settings panel centered on desktop */
+  .settings-panel-overlay {
+    align-items: center;
+  }
+
+  .settings-panel {
+    border-radius: 24px;
+    max-width: 460px;
+    padding: 36px 32px 40px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .settings-header {
+    padding: 40px 48px 24px;
+  }
+
+  .profile-card {
+    margin: 0 48px 28px;
+  }
+
+  .settings-list {
+    padding: 0 48px;
+  }
+}

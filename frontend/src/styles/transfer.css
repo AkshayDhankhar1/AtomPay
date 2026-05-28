@@ -304,3 +304,66 @@
   overflow: hidden;
   border: 2px solid var(--orange);
 }
+
+/* ═══════════════════════════════════════
+   DESKTOP RESPONSIVE (≥768px)
+   ═══════════════════════════════════════ */
+@media (min-width: 768px) {
+  .transfer-page {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .transfer-header {
+    padding: 32px 40px 20px;
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .transfer-header h2 {
+    font-size: 24px;
+  }
+
+  .step-indicator {
+    max-width: 600px;
+    width: 100%;
+    padding: 0 40px 24px;
+  }
+
+  .transfer-form {
+    max-width: 600px;
+    width: 100%;
+    padding: 0 40px;
+  }
+
+  .transfer-summary {
+    border-radius: 20px;
+  }
+
+  .success-screen {
+    max-width: 600px;
+    padding: 60px 40px;
+  }
+
+  .success-circle {
+    width: 96px;
+    height: 96px;
+    font-size: 40px;
+  }
+
+  .success-screen h2 {
+    font-size: 28px;
+  }
+
+  /* Scanner modal centered on desktop */
+  .scanner-overlay {
+    align-items: center;
+  }
+
+  .scanner-modal {
+    border-radius: 24px;
+    max-width: 420px;
+  }
+}

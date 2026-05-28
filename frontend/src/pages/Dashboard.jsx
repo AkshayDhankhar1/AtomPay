@@ -3,7 +3,7 @@ import { api } from "../api";
 import BottomNav from "../components/BottomNav";
 import "../styles/dashboard.css";
 
-export default function Dashboard({ token, user, navigate, onLogout }) {
+export default function Dashboard({ token, user, navigate, onLogout, onOpenAI }) {
   const [wallet, setWallet] = useState(null);
   const [allTxns, setAllTxns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,16 +55,16 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
         <div className="qr-modal-overlay" onClick={() => setShowQR(false)}>
           <div className="qr-modal" onClick={e => e.stopPropagation()}>
             <div className="qr-modal-header">
-              <h3>Mera QR Code</h3>
+              <h3>My QR Code</h3>
               <button className="qr-close-btn" onClick={() => setShowQR(false)}>✕</button>
             </div>
-            <p className="qr-modal-hint">Yeh QR scan karke koi bhi tumhe paisa bhej sakta hai</p>
+            <p className="qr-modal-hint">Anyone can send you money by scanning this QR code</p>
             {wallet?.qrCode ? (
               <div className="qr-image-wrap">
                 <img src={wallet.qrCode} alt="My QR Code" className="qr-image" />
               </div>
             ) : (
-              <div className="qr-empty">QR generate ho raha hai...</div>
+              <div className="qr-empty">Generating QR code...</div>
             )}
             <p className="qr-username">@{user?.username}</p>
           </div>
@@ -82,21 +82,42 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
         </div>
       </div>
 
-      {/* Balance Card */}
-      <div className="balance-card">
-        <div className="balance-card-glow" />
-        <div className="balance-top">
-          <span className="balance-label">Wallet Balance</span>
-          <button className="eye-btn" onClick={() => setBalanceVisible(!balanceVisible)}>
-            {balanceVisible ? "👁" : "🙈"}
-          </button>
+      {/* Balance + Daily Limit Grid */}
+      <div className="dash-top-grid">
+        {/* Balance Card */}
+        <div className="balance-card">
+          <div className="balance-card-glow" />
+          <div className="balance-top">
+            <span className="balance-label">Wallet Balance</span>
+            <button className="eye-btn" onClick={() => setBalanceVisible(!balanceVisible)}>
+              {balanceVisible ? "👁" : "🙈"}
+            </button>
+          </div>
+          <div className="balance-amount">
+            {balanceVisible ? formatAmount(wallet?.balance ?? 0) : "₹ ••••••"}
+          </div>
+          <div className="balance-meta">
+            <span className={`wallet-status ${wallet?.status?.toLowerCase()}`}>{wallet?.status}</span>
+            <span className="balance-curr">{wallet?.currency}</span>
+          </div>
         </div>
-        <div className="balance-amount">
-          {balanceVisible ? formatAmount(wallet?.balance ?? 0) : "₹ ••••••"}
-        </div>
-        <div className="balance-meta">
-          <span className={`wallet-status ${wallet?.status?.toLowerCase()}`}>{wallet?.status}</span>
-          <span className="balance-curr">{wallet?.currency}</span>
+
+        {/* Daily Limit Bar */}
+        <div className="limit-bar-section">
+          <div className="limit-bar-header">
+            <span>Daily Limit Used</span>
+            <span className="limit-bar-amt">
+              {formatAmount(dailyDebitTotal)} / ₹1,00,000
+            </span>
+          </div>
+          <div className="limit-bar-track">
+            <div
+              className="limit-bar-fill"
+              style={{
+                width: `${Math.min((dailyDebitTotal / 100000) * 100, 100)}%`
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -114,28 +135,10 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
           <span className="action-icon">⬛</span>
           <span>My QR</span>
         </button>
-        <button className="action-btn" onClick={() => navigate("settings")}>
-          <span className="action-icon">⚙</span>
-          <span>Settings</span>
+        <button className="action-btn" onClick={onOpenAI}>
+          <span className="action-icon" style={{ background: "linear-gradient(135deg, #FF5722, #FFB74D)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 800 }}>✦</span>
+          <span>Atom AI</span>
         </button>
-      </div>
-
-      {/* Daily Limit Bar */}
-      <div className="limit-bar-section">
-        <div className="limit-bar-header">
-          <span>Daily Limit Used</span>
-          <span className="limit-bar-amt">
-            {formatAmount(dailyDebitTotal)} / ₹1,00,000
-          </span>
-        </div>
-        <div className="limit-bar-track">
-          <div
-            className="limit-bar-fill"
-            style={{
-              width: `${Math.min((dailyDebitTotal / 100000) * 100, 100)}%`
-            }}
-          />
-        </div>
       </div>
 
       {/* Recent Transactions */}
@@ -147,8 +150,8 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
 
         {recentTxns.length === 0 ? (
           <div className="empty-txn">
-            <p>Abhi tak koi transaction nahi</p>
-            <button onClick={() => navigate("transfer")}>Pehla payment bhejo ⚡</button>
+            <p>No transactions yet</p>
+            <button onClick={() => navigate("transfer")}>Send your first payment ⚡</button>
           </div>
         ) : (
           recentTxns.map((tx, i) => (
