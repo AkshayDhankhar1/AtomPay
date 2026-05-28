@@ -74,7 +74,7 @@ export default function Dashboard({ token, user, navigate, onLogout, onOpenAI })
       {/* Header */}
       <div className="dash-header">
         <div>
-          <p className="dash-greeting">Namaste 👋</p>
+          <p className="dash-greeting">Hello 👋</p>
           <h2 className="dash-name">{user?.username}</h2>
         </div>
         <div className="dash-avatar" onClick={() => navigate("settings")}>

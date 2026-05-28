@@ -66,9 +66,9 @@ export default function Signup({ onLogin, goToLogin }) {
           {!otpSent ? (
             <>
               {[
-                { key: "name", label: "Full Name", placeholder: "Akshy Dhankhar", type: "text" },
-                { key: "email", label: "Email", placeholder: "you@example.com", type: "email" },
-                { key: "username", label: "Username", placeholder: "akshy123", type: "text" },
+                { key: "name", label: "Full Name", placeholder: "Akshay Dhankhar", type: "text" },
+                { key: "email", label: "Email", placeholder: "akshay@example.com", type: "email" },
+                { key: "username", label: "Username", placeholder: "akshay123", type: "text" },
                 { key: "password", label: "Password", placeholder: "Min 8 characters", type: "password" },
                 { key: "pin", label: "UPI PIN (6 digits)", placeholder: "••••••", type: "password" },
               ].map(({ key, label, placeholder, type }) => (
