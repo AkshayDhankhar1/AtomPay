@@ -16,3 +16,9 @@ yarn-error.log*
 # test coverage
 coverage/
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+
