@@ -7,7 +7,7 @@ const { generateTokenPair, generateAccessToken, revokeRefreshToken, revokeAllUse
 const RefreshToken = require("../db/refreshToken");
 const QRCode = require("qrcode");
 const { generateOTP, verifyOTP } = require("../utils/otp");
-const sendOTPEmail = require("../utils/mailer");
+const { sendOTPEmail } = require("../utils/mailer");
 
 exports.signup = async (req, res) => {
     try {

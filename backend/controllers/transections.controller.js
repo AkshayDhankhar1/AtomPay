@@ -5,6 +5,7 @@ const Transaction = require("../db/transections");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { cacheDel } = require("../db/cache");
+const { enqueueEmail, enqueueAudit } = require("../queues");
 
 exports.transferMoney = async (req, res) => {
     const senderId = req.user.id;
@@ -162,6 +163,24 @@ exports.transferMoney = async (req, res) => {
             `cache:txns:${receiver._id}`
         );
 
+        // Offload non-critical work to the queues (fire-and-forget, fail-open).
+        enqueueEmail({
+            type: "transaction",
+            userId: senderId,
+            amount,
+            peerUsername: receiver.username,
+            status: "success",
+            transactionId: tx.transactionId
+        });
+        enqueueAudit({
+            event: "transfer",
+            transactionId: tx.transactionId,
+            fromUserId: senderId,
+            toUserId: receiver._id.toString(),
+            amount,
+            status: "success"
+        });
+
         return res.status(200).json({
             msg: "Money sent successfully"
         })
@@ -189,6 +208,23 @@ exports.transferMoney = async (req, res) => {
                 console.log("Failed to save failed transaction record:", saveErr);
             }
         }
+        // Audit + notify on failure (off the request path, fail-open)
+        enqueueAudit({
+            event: "transfer",
+            transactionId: tx ? tx.transactionId : undefined,
+            fromUserId: senderId,
+            amount,
+            status: "failed",
+            failureReason: err.message
+        });
+        enqueueEmail({
+            type: "transaction",
+            userId: senderId,
+            amount,
+            status: "failed",
+            transactionId: tx ? tx.transactionId : undefined
+        });
+
         // FIX: Don't expose internal error messages to clients
         return res.status(500).json({
             msg: "Transaction failed. Please try again."
