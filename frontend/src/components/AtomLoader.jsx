@@ -1,9 +1,9 @@
 /**
  * AtomLoader — the signature AtomPay loading animation.
  *
- * Three static, tilted elliptical orbits form the classic atom symbol;
- * an electron glides smoothly along each orbit's path (CSS offset-path),
- * with a softly pulsing nucleus at the center. Styles live in global.css.
+ * Two static, crossed elliptical orbits form a clean atom; an electron
+ * glides smoothly along each orbit's path (CSS offset-path), around a
+ * softly pulsing nucleus. Styles live in global.css.
  *
  * Reused for page loads, section loads, buttons, and the AI "thinking" state.
  *
@@ -20,10 +20,6 @@ export default function AtomLoader({ size = 64, label }) {
           <span className="electron" />
         </div>
         <div className="atom-orbit-group g2">
-          <div className="orbit-ring" />
-          <span className="electron" />
-        </div>
-        <div className="atom-orbit-group g3">
           <div className="orbit-ring" />
           <span className="electron" />
         </div>

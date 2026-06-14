@@ -16,7 +16,7 @@
     height: 100vh;
     position: sticky;
     top: 0;
-    background: rgba(15, 15, 15, 0.85);
+    background: rgba(20, 16, 14, 0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -123,7 +123,7 @@
   }
 
   .sidenav-link.active {
-    background: rgba(255, 87, 34, 0.08);
+    background: rgba(255, 107, 44, 0.08);
     color: var(--orange);
   }
 
@@ -186,6 +186,6 @@
 
   .logout-link:hover {
     color: var(--red) !important;
-    background: rgba(255, 23, 68, 0.06) !important;
+    background: rgba(255, 92, 108, 0.06) !important;
   }
 }

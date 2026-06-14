@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/transactions.css";
 
 export default function Transactions({ token, navigate }) {
@@ -73,7 +74,7 @@ export default function Transactions({ token, navigate }) {
       </div>
 
       {loading ? (
-        <div className="loading-screen"><span className="logo-atom spinning">⚡</span></div>
+        <div className="loading-screen"><AtomLoader size={64} label="Loading transactions…" /></div>
       ) : filtered.length === 0 ? (
         <div className="empty-txn">
           <p>No transactions found</p>

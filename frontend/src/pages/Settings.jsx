@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/settings.css";
 
 export default function Settings({ token, user, navigate, onLogout }) {
@@ -98,7 +99,7 @@ export default function Settings({ token, user, navigate, onLogout }) {
             {error && <div className="panel-error">{error}</div>}
             {msg && <div className="panel-success">{msg}</div>}
             <button className="panel-btn" onClick={handleChangePassword} disabled={loading}>
-              {loading ? <span className="spinner" /> : "Update Password"}
+              {loading ? <AtomLoader size={22} /> : "Update Password"}
             </button>
             <button className="panel-btn-cancel" onClick={() => setActivePanel(null)}>Cancel</button>
           </div>
@@ -123,7 +124,7 @@ export default function Settings({ token, user, navigate, onLogout }) {
             {error && <div className="panel-error">{error}</div>}
             {msg && <div className="panel-success">{msg}</div>}
             <button className="panel-btn" onClick={handleChangePin} disabled={loading}>
-              {loading ? <span className="spinner" /> : "Update PIN"}
+              {loading ? <AtomLoader size={22} /> : "Update PIN"}
             </button>
             <button className="panel-btn-cancel" onClick={() => setActivePanel(null)}>Cancel</button>
           </div>

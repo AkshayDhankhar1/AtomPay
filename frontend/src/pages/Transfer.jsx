@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/transfer.css";
 
 const QUICK_AMOUNTS = [100, 500, 1000, 2000, 5000];
@@ -239,7 +240,7 @@ export default function Transfer({ token, navigate, initialData }) {
           {error && <div className="transfer-error">{error}</div>}
 
           <button className="transfer-btn" onClick={handleTransfer} disabled={loading}>
-            {loading ? <span className="spinner" /> : `Confirm & Send ${formatAmount(Number(form.amount))}`}
+            {loading ? <AtomLoader size={24} /> : `Confirm & Send ${formatAmount(Number(form.amount))}`}
           </button>
         </div>
       )}

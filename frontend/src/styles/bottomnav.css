@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   width: 100%;
-  background: rgba(15, 15, 15, 0.92);
+  background: rgba(20, 16, 14, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--bg3);

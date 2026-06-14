@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/dashboard.css";
 
 export default function Dashboard({ token, user, navigate, onLogout }) {
@@ -44,7 +45,7 @@ export default function Dashboard({ token, user, navigate, onLogout }) {
 
   if (loading) return (
     <div className="loading-screen">
-      <span className="logo-atom spinning">⚡</span>
+      <AtomLoader size={72} label="Loading your wallet…" />
     </div>
   );
 

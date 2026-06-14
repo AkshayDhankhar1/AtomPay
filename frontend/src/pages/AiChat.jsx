@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../api";
 import BottomNav from "../components/BottomNav";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/aichat.css";
 
 // ── Simple Markdown Renderer ──
@@ -363,9 +364,7 @@ export default function AiChat({ token, user }) {
                       display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14
                     }}>✦</div>
                     <div className="ai-typing-bubble">
-                      <div className="ai-typing-dot" />
-                      <div className="ai-typing-dot" />
-                      <div className="ai-typing-dot" />
+                      <AtomLoader size={30} />
                     </div>
                   </div>
                 )}
@@ -426,7 +425,7 @@ export default function AiChat({ token, user }) {
           </div>
 
           {expenseLoading ? (
-            <div className="ai-loading"><div className="ai-loading-spinner" /></div>
+            <div className="ai-loading"><AtomLoader size={56} label="Crunching your numbers…" /></div>
           ) : expenseData ? (
             <>
               {/* Summary Cards */}
@@ -547,7 +546,7 @@ export default function AiChat({ token, user }) {
       {activeTab === "insights" && (
         <div className="ai-insights-tab">
           {insightsLoading ? (
-            <div className="ai-loading"><div className="ai-loading-spinner" /></div>
+            <div className="ai-loading"><AtomLoader size={56} label="Crunching your numbers…" /></div>
           ) : insightsData ? (
             <>
               {/* Balance Card */}

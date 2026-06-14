@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../api";
+import AtomLoader from "../components/AtomLoader";
 import "../styles/auth.css";
 
 export default function Signup({ onLogin, goToLogin }) {
@@ -54,11 +55,12 @@ export default function Signup({ onLogin, goToLogin }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-bg-glow" />
+      <div className="auth-orb auth-orb-1" />
+      <div className="auth-orb auth-orb-2" />
       <div className="auth-card">
-        <div className="auth-logo">
-          <span className="logo-atom">⚡</span>
-          <span className="logo-text">AtomPay</span>
+        <div className="auth-brand">
+          <AtomLoader size={56} />
+          <div className="auth-wordmark">Atom<span>Pay</span></div>
         </div>
         <p className="auth-subtitle">Get started with a ₹5,000 signup bonus</p>
 
@@ -87,7 +89,7 @@ export default function Signup({ onLogin, goToLogin }) {
               {error && <div className="auth-error">{error}</div>}
 
               <button className="auth-btn" onClick={handleSendOTP} disabled={loading}>
-                {loading ? <span className="spinner" /> : "Send OTP"}
+                {loading ? <AtomLoader size={22} /> : "Send OTP"}
               </button>
             </>
           ) : (
@@ -106,7 +108,7 @@ export default function Signup({ onLogin, goToLogin }) {
               {error && <div className="auth-error">{error}</div>}
 
               <button className="auth-btn" onClick={handleSubmit} disabled={loading}>
-                {loading ? <span className="spinner" /> : "Create Account"}
+                {loading ? <AtomLoader size={22} /> : "Create Account"}
               </button>
             </>
           )}

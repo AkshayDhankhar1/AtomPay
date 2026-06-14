@@ -1,3 +1,4 @@
+import AtomLoader from "../components/AtomLoader";
 import "../styles/maintenance.css";
 
 export default function Maintenance() {
@@ -11,8 +12,7 @@ export default function Maintenance() {
 
       <div className="maintenance-content">
         <div className="maintenance-icon">
-          <span className="maintenance-gear">⚙</span>
-          <span className="maintenance-bolt">⚡</span>
+          <AtomLoader size={104} />
         </div>
 
         <h1 className="maintenance-title">Under Maintenance</h1>

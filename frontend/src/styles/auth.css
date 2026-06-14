@@ -72,7 +72,7 @@
 }
 
 .auth-wordmark {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -117,7 +117,7 @@
   font-size: 26px;
   letter-spacing: 12px;
   text-align: center;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Syne', sans-serif;
 }
 
 /* Buttons */
@@ -128,7 +128,7 @@
   border-radius: 14px;
   background: var(--grad);
   color: #fff;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -166,7 +166,7 @@
   cursor: pointer;
   margin-top: 12px;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   transition: color 0.2s;
 }
 
