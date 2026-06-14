@@ -4,6 +4,7 @@ const Wallet = require("../db/wallet");
 const Transaction = require("../db/transections");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { cacheDel } = require("../db/cache");
 
 exports.transferMoney = async (req, res) => {
     const senderId = req.user.id;
@@ -151,6 +152,15 @@ exports.transferMoney = async (req, res) => {
         tx.status = "success";
         await tx.save({ session });
         await session.commitTransaction();
+
+        // Invalidate cached balance + history for BOTH parties — only AFTER the
+        // 2-phase commit has resolved, so we never serve stale financial data.
+        await cacheDel(
+            `cache:balance:${senderId}`,
+            `cache:balance:${receiver._id}`,
+            `cache:txns:${senderId}`,
+            `cache:txns:${receiver._id}`
+        );
 
         return res.status(200).json({
             msg: "Money sent successfully"
