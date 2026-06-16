@@ -141,9 +141,9 @@ export default function Login({ onLogin, goToSignup }) {
           </div>
         </div>
 
-        <div className="auth-host">
+        {/* <div className="auth-host">
           <span /><em>Your host, <strong>Akshay Dhankhar</strong></em><span />
-        </div>
+        </div> */}
 
         <p className="auth-subtitle">
           {mode === "forgot"
@@ -313,7 +313,7 @@ export default function Login({ onLogin, goToSignup }) {
           </p>
 
           <p className="auth-seal">
-            Crafted in Gold by <strong>Akshay Dhankhar</strong>
+            Crafted in Gold with <strong>LOVE</strong>
           </p>
         </div>
       </div>
